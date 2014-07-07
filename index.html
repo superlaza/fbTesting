@@ -1,42 +1,53 @@
 <!DOCTYPE html>
-<!--[if lt IE 7]>      <html class="no-js lt-ie9 lt-ie8 lt-ie7"> <![endif]-->
-<!--[if IE 7]>         <html class="no-js lt-ie9 lt-ie8"> <![endif]-->
-<!--[if IE 8]>         <html class="no-js lt-ie9"> <![endif]-->
-<!--[if gt IE 8]><!--> <html class="no-js"> <!--<![endif]-->
-    <head>
-        <meta charset="utf-8">
-        <meta http-equiv="X-UA-Compatible" content="IE=edge">
-        <title></title>
-        <meta name="description" content="">
-        <meta name="viewport" content="width=device-width, initial-scale=1">
 
-        <!-- Place favicon.ico and apple-touch-icon.png in the root directory -->
-        <link rel="stylesheet" href="css/normalize.css">
-        <link rel="stylesheet" href="css/main.css">
-        <script src="js/vendor/modernizr-2.6.2.min.js"></script>
-        <script src="js/vendor/angular.js"></script>
-    </head>
-    <body >
-        <!--[if lt IE 7]>
-            <p class="browsehappy">You are using an <strong>outdated</strong> browser. Please <a href="http://browsehappy.com/">upgrade your browser</a> to improve your experience.</p>
-        <![endif]-->
+<html>
 
-        <!-- Add your site or application content here -->
-        <p>Hello world! This is HTML5 Boilerplate.</p>
+<head>
+    <title>Conversation Upload Form</title>
+    <link rel="stylesheet" type="text/css" href="./css/main.css">
+    <link rel="stylesheet" href="./css/animate.css">
+    <link rel="stylesheet" href="./css/dropzone.css">
+    <script type="application/javascript" src="./js/vendor/jquery-1.11.1.js"></script>
+    <script type="application/javascript" src="./js/vendor/dropzone.js"></script>
+    <script type="text/javascript">
+        //attribute name of options is the camelized version of the form element ID
+        $(function(){
+            Dropzone.options.uploadId ={
+                paramName: "file",
+                dictDefaultMessage: ""
+            };
 
-        <script src="//ajax.googleapis.com/ajax/libs/jquery/1.10.2/jquery.min.js"></script>
-        <script>window.jQuery || document.write('<script src="js/vendor/jquery-1.10.2.min.js"><\/script>')</script>
-        <script src="js/plugins.js"></script>
-        <script src="js/main.js"></script>
+            var myDZ = new Dropzone('#uploadId');
 
-        <!-- Google Analytics: change UA-XXXXX-X to be your site's ID. -->
-        <script>
-            (function(b,o,i,l,e,r){b.GoogleAnalyticsObject=l;b[l]||(b[l]=
-            function(){(b[l].q=b[l].q||[]).push(arguments)});b[l].l=+new Date;
-            e=o.createElement(i);r=o.getElementsByTagName(i)[0];
-            e.src='//www.google-analytics.com/analytics.js';
-            r.parentNode.insertBefore(e,r)}(window,document,'script','ga'));
-            ga('create','UA-XXXXX-X');ga('send','pageview');
-        </script>
-    </body>
+            myDZ.on('dragover', function(evt){
+                $('#uploadId').addClass('animated pulse');
+            });
+            myDZ.on('dragleave', function(evt){
+                $('#uploadId').removeClass('animated pulse');
+            });
+            myDZ.on('drop', function(evt){
+                $('#uploadId').removeClass('animated pulse')
+                        .addClass('animated rubberBand');
+            });
+        });
+
+    </script>
+</head>
+
+<body>
+    <div id="intro">
+        Analyze Your Facebook Chat Interactions!
+    </div>
+<!--currently server detects post request to handle form action-->
+    <div id="uploadCont">
+        <img id="uploadImg" class="upload" src="img/fb_upload.png">
+        <form action="./nodejs/app.js"
+              class="dropzone upload"
+              id="uploadId">
+            <!--<div id="dropZoneText">Drop your shit here, please.</div>-->
+        </form>
+    </div>
+
+</body>
+
 </html>

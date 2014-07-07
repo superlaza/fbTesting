@@ -11,7 +11,7 @@ var formidable = require('formidable');
 var util = require('util');
 
 //read main file, when done launch server
-fs.readFile('../dropzoneTest.html', function (err, html) {
+fs.readFile('../index.html', function (err, html) {
     if (err) {
         console.log(err); 
     }
@@ -60,7 +60,7 @@ fs.readFile('../dropzoneTest.html', function (err, html) {
                     body += data;
                     // 1e6 === 1 * Math.pow(10, 6) === 1 * 1000000 ~~~ 1MB
                     
-                    if (body.length > 1e6) { 
+                    if (body.length > 1e6) {
                         //In case of flood, ends connection with 101
                         req.connection.destroy();
                     }
@@ -92,10 +92,10 @@ fs.readFile('../dropzoneTest.html', function (err, html) {
         //need to check (mime) type of requested file. downloaded mime module to help
         var uri = url.parse(req.url).pathname;
 
-        //if website is accessed by http://localhost:8000, fetch index (dropzoneTest.html)
+        //if website is accessed by http://localhost:8000, fetch index (index.html)
         if (uri == "/")
         {
-            uri = "dropzoneTest.html";
+            uri = "index.html";
             //serve preloaded html
             res.setHeader('content-type', mime.lookup(uri));
             res.writeHead(200);
