@@ -12,6 +12,11 @@
 * **use** "nodemon [your app.js]"
 
 ###formidable
+* **install** npm install -g mime
+* **notes** "used to determine mimetype
+* **use** ""
+
+###formidable
 * **install** npm install formidable
 * **notes** "used to handle form upload. good with multipart form uploads"
 * **use** "https://github.com/felixge/node-formidable"
