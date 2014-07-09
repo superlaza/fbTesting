@@ -26,3 +26,8 @@ General info - [On global/local](http://stackoverflow.com/questions/11715486/nod
 * **install** npm install -g bower
 * **notes** "Bower works by fetching and installing packages from all over, taking care of hunting, finding, downloading, and saving the stuff you’re looking for. Bower keeps track of these packages in a manifest file, bower.json. How you use packages is up to you. Bower provides hooks to facilitate using packages in your tools and workflows.Bower is optimized for the front-end. Bower uses a flat dependency tree, requiring only one version for each package, reducing page load to a minimum."
 * **use** "bower install <package>" [bower packages](http://bower.io/#install-packages)
+
+###socket.io
+* **install** npm install socket.io
+* **notes** "Socket.IO enables real-time bidirectional event-based communication"
+* **use** [docs](http://socket.io/docs/)
