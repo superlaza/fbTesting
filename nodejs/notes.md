@@ -30,4 +30,4 @@ General info - [On global/local](http://stackoverflow.com/questions/11715486/nod
 ###socket.io
 * **install** npm install socket.io
 * **notes** Socket.IO enables real-time bidirectional event-based communication. IF YOU HAVE MS VISUAL STUDIO INSTALLED, SEE [THIS ISSUE ON GITHUB](https://github.com/Automattic/socket.io/issues/1151) AND [THIS DISCUSSION ON SO](http://stackoverflow.com/questions/14180012/npm-install-for-some-packages-sqlite3-socket-io-fail-with-error-msb8020-on-wi)
-* **use** [docs](http://socket.io/docs/)
+* **use** [docs](http://socket.io/docs/). What worked for me was opening the developer command prompt for VS20xx as administrator and typing npm install socket.io --msvs-version=2013. If that doesn't work, I also set this env. variable on the cmd "set GYP_MSVS_VERSION=2012". On the client side, only including the socket.io.js script from the CDN worked for me, having a local copy DID NOT WORK.
