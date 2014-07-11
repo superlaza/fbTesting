@@ -9,27 +9,51 @@
     <link rel="stylesheet" href="./css/dropzone.css">
     <script type="application/javascript" src="./js/vendor/jquery-1.11.1.js"></script>
     <script type="application/javascript" src="./js/vendor/dropzone.js"></script>
+    <script src="https://cdn.socket.io/socket.io-1.0.6.js"></script>
+<!--I don't really like pulling from the CDN, but local repo doesn't work-->
+<!--<script type="application/javascript" src="./js/vendor/socket.io/socket.io.js"></script>-->
+    <script type="application/javascript">
+        //SOCKET.IO.JS
+        $(function(){
+        var socket = io('http://localhost');
+        socket.on('news', function (data) {
+            console.log(data);
+            socket.emit('my other event', { my: 'data' });
+        });}());
+    </script>
     <script type="text/javascript">
+        //DROPZONE.JS
         //attribute name of options is the camelized version of the form element ID
         $(function(){
             Dropzone.options.uploadId ={
                 paramName: "file",
-                dictDefaultMessage: ""
-            };
+                dictDefaultMessage: "",
+                init: function() {
+                    this.on('dragover', function(evt){
+                        $('#uploadId').addClass('animated pulse');
+                    });
+                    this.on('dragleave', function(evt){
+                        $('#uploadId').removeClass('animated pulse');
+                    });
+                    this.on('drop', function(evt){
+                        var uploadBox = $('#uploadId');
+                        uploadBox.removeClass('animated pulse')
+                                .addClass('animated rubberBand');
+                        setTimeout(function() {
+                            uploadBox.addClass('animated fadeOut');
+                            setTimeout(function () {
+                                uploadBox.remove();
+                                $('#uploadImg').css({
+                                    "display": "block",
+                                    "margin-left": "37.5%"
+                                });
+                            }, 1000);
+                        }, 500);
+                    });
+                }//end init
+            };//end options
 
-            var myDZ = new Dropzone('#uploadId');
-
-            myDZ.on('dragover', function(evt){
-                $('#uploadId').addClass('animated pulse');
-            });
-            myDZ.on('dragleave', function(evt){
-                $('#uploadId').removeClass('animated pulse');
-            });
-            myDZ.on('drop', function(evt){
-                $('#uploadId').removeClass('animated pulse')
-                        .addClass('animated rubberBand');
-            });
-        });
+        });//end ondocready
 
     </script>
 </head>

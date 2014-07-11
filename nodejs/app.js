@@ -11,13 +11,16 @@ var qs = require('querystring');
 var formidable = require('formidable');
 var util = require('util');
 
+//socket.io
+var socket = require('socket.io');
+
 //read main file, when done launch server
 fs.readFile('../index.html', function (err, html) {
     if (err) {
         console.log(err); 
     }
 
-    http.createServer(function(req, res) { 
+    var app = http.createServer(function(req, res) {
         //this method should be in a handler pointed to by action
         //consider returning from createServer function after POST req
         if (req.method == 'POST') {
@@ -125,6 +128,18 @@ fs.readFile('../index.html', function (err, html) {
                 res.end(data);
             });
 
-    }).listen(8000);
+    });
+
+    var io = socket(app);
+    app.listen(8000);
+
+    io.on('connection', function (socket){
+        socket.emit('news', {hello: 'world'});
+        socket.on('my other event', function (data){
+            console.log(data);
+        });
+    });
+
+    console.log("Server listening on port 8000...");
 });
-console.log("Server listening on port 8000...");
+

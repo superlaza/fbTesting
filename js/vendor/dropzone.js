@@ -1,4 +1,3 @@
-
 ;(function(){
 
 /**
@@ -419,11 +418,28 @@ require.register("dropzone/lib/dropzone.js", function (exports, module) {
         if (this.element === this.previewsContainer) {
           this.element.classList.add("dz-started");
         }
-        if (this.previewsContainer) {
+        if (!this.previewsContainer) {
+          /*superlaza
+          * the line below is responsible for kooky drop behavior.
+          * I changed the conditional above by adding a negation so this if block wouldn't run.
+          * Not  sustainable solution.
+          */
           file.previewElement = Dropzone.createElement(this.options.previewTemplate.trim());
           file.previewTemplate = file.previewElement;
-          this.previewsContainer.appendChild(file.previewElement);
-          _ref = file.previewElement.querySelectorAll("[data-dz-name]");
+
+          //superlaza
+          //=====================
+          /* original code */
+          //this.previewsContainer.appendChild(file.previewElement);
+
+          /* my code */
+          //this
+          try {
+              this.previewsContainer.appendChild(file.previewElement);
+          }catch(err){console.log("Dropzone can't append to element that's remove by jQuery .remove()");}
+          //=====================
+
+            _ref = file.previewElement.querySelectorAll("[data-dz-name]");
           for (_i = 0, _len = _ref.length; _i < _len; _i++) {
             node = _ref[_i];
             node.textContent = file.name;

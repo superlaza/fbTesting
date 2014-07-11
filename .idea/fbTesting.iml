@@ -17,6 +17,8 @@
     <orderEntry type="library" name="d3-DefinitelyTyped" level="application" />
     <orderEntry type="library" name="d3.js" level="project" />
     <orderEntry type="library" name="angular.js" level="application" />
+    <orderEntry type="library" name="socket.io-DefinitelyTyped" level="application" />
+    <orderEntry type="library" name="socket.io-client-DefinitelyTyped" level="application" />
   </component>
 </module>
 
