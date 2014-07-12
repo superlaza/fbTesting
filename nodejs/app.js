@@ -25,7 +25,7 @@ var dt = new dataTransport();
 
 
 //read main file, when done launch server
-fs.readFile('../index.html', function (err, html) {
+fs.readFile('./index.html', function (err, html) {
     if (err) {
         console.log(err); 
     }
@@ -62,7 +62,7 @@ fs.readFile('../index.html', function (err, html) {
             });
 
             form.on('end', function(){
-                fs.readFile('../uploads/wordcount.json', 'utf8', function (err, json) {
+                fs.readFile('./uploads/wordcount.json', 'utf8', function (err, json) {
                     if (err) {
                         console.log(err);
                     }
@@ -150,7 +150,7 @@ fs.readFile('../index.html', function (err, html) {
         //otherwise lookup file and server
         //read file based on type
         //currently one folder up
-        fs.readFile('../'+uri,
+        fs.readFile('./'+uri,
             function (err, data)
             {
                 if (err)
