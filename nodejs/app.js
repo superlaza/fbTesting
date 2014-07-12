@@ -62,7 +62,7 @@ fs.readFile('../index.html', function (err, html) {
             });
 
             form.on('end', function(){
-                fs.readFile('../uploads/timeLine.json', 'utf8', function (err, json) {
+                fs.readFile('../uploads/wordcount.json', 'utf8', function (err, json) {
                     if (err) {
                         console.log(err);
                     }
@@ -172,8 +172,8 @@ fs.readFile('../index.html', function (err, html) {
     app.listen(8000);
 
     io.on('connection', function(socket){
-        console.log(JSON.stringify(dt.data));
-        socket.emit('server', JSON.stringify(dt.data));
+        console.log(dt.data);
+        socket.emit('server', dt.data);
         /*
         dt.on('data', function(){
             console.log('when');
