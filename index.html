@@ -5,15 +5,17 @@
 <head>
     <meta charset="utf-8">
     <title>Conversation Upload Form</title>
-    <link rel="stylesheet" type="text/css" href="./css/main.css">
+    <link rel="stylesheet" type="text/css" href="css/main.css">
     <link rel="stylesheet" href="./css/animate.css">
     <link rel="stylesheet" href="./css/dropzone.css">
     <script type="application/javascript" src="./js/vendor/jquery-1.11.1.js"></script>
     <script type="application/javascript" src="./js/vendor/dropzone.js"></script>
     <script type="application/javascript" src="./js/vendor/d3.js"></script>
+    <!--I don't really like pulling from the CDN, but local repo doesn't work-->
+    <!--<script type="application/javascript" src="./bower_components/socket.io/lib/socket.js"></script>-->
     <script src="https://cdn.socket.io/socket.io-1.0.6.js"></script>
-<!--I don't really like pulling from the CDN, but local repo doesn't work-->
-<!--<script type="application/javascript" src="./bower_components/socket.io/lib/socket.js"></script>-->
+
+
     <script type="text/javascript">
         //<editor-fold desc="DROPZONE.JS">
         //name of options attribute is the camelized version of the form element ID
@@ -44,8 +46,7 @@
                                     var socket = io('http://localhost');
                                     socket.on('server', function (data) {
                                         console.log(data);
-                                        var dataArray = data;
-                                        d3init(dataArray);
+                                        d3init(data);
                                     });
                                 },2000);
                             }, 1000);
@@ -158,10 +159,10 @@
 
                     });
 
-//            d3.select("#btnSort")
-//                    .on("click", function () {
-//                        sortBars();
-//                    });
+            d3.select("#btnSort")
+                    .on("click", function () {
+                        sortBars();
+                    });
 
 
             var sortBars = function () {
@@ -198,8 +199,8 @@
     </div>
 <!--currently server detects post request to handle form action-->
     <div id="uploadCont">
-        <img id="uploadImg" class="upload" src="img/fb_upload.png">
-        <form action="./nodejs/app.js"
+        <img id="uploadImg" class="upload" src="img\fb_upload.png">
+        <form action="nodejs/app.js"
               class="dropzone upload"
               id="uploadId">
             <!--<div id="dropZoneText">Drop your shit here, please.</div>-->
@@ -215,6 +216,9 @@
     <button id="gobtn">Go</button>
     <p></p>
     <!--<button id="gobtn">Go</button>-->
+
+    <!--The following comment is used for injection-->
+    <script src="//localhost:35729/livereload.js"></script>
 </body>
 
 </html>
