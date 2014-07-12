@@ -14,6 +14,16 @@ var util = require('util');
 //socket.io
 var socket = require('socket.io');
 
+//custom events firing
+var events = require('events');
+
+//handle transport of data
+var dataTransport = function(){this.data = undefined};
+//inherit props from EventEmitter
+dataTransport.prototype = new events.EventEmitter;
+var dt = new dataTransport();
+
+
 //read main file, when done launch server
 fs.readFile('../index.html', function (err, html) {
     if (err) {
@@ -39,7 +49,10 @@ fs.readFile('../index.html', function (err, html) {
                 //save to current directory
                 //need to specify file path at moment of file discovery
                 //otherwise it will be ignored when the writestream is created
-                file.path = '../uploads/'+file.name;
+                //file.path = '../uploads/'+file.name;
+
+                //HARDCODED FILE NAME FOR NOW, NEED TO TEST FOR HTML
+                file.path = '../uploads/data.html';
             });
 
             //register this callback to progress event to display progress
@@ -48,6 +61,31 @@ fs.readFile('../index.html', function (err, html) {
                 console.log(percent_complete.toFixed(2));
             });
 
+            form.on('end', function(){
+                fs.readFile('../uploads/timeLine.json', 'utf8', function (err, json) {
+                    if (err) {
+                        console.log(err);
+                    }
+
+                    dt.data = JSON.parse(json);
+                    //dt.emit('data');
+                   // dataFlag = true;
+                    //sendProcData(json);
+
+                    /*
+                    io.on('connect', function (socket) {
+                        //socket.emit('server', JSON.parse(json));
+
+                        /*testing
+                        socket.on('client', function (data) {
+                            console.log(data);
+                        });
+
+                    });*/
+                });
+            });
+
+            //think of writing response in form.on('end',....);
             form.parse(req, function(err, fields, files) {
                 res.writeHead(200, {'content-type': 'text/plain'});
                 res.write('received upload:\n\n');
@@ -133,13 +171,21 @@ fs.readFile('../index.html', function (err, html) {
     var io = socket(app);
     app.listen(8000);
 
-    io.on('connection', function (socket){
-        socket.emit('news', {hello: 'world'});
-        socket.on('my other event', function (data){
-            console.log(data);
-        });
+    io.on('connection', function(socket){
+        console.log(JSON.stringify(dt.data));
+        socket.emit('server', JSON.stringify(dt.data));
+        /*
+        dt.on('data', function(){
+            console.log('when');
+            socket.emit('server', dataTransport.data);
+        });*/
     });
 
+    function sendProcData(json) {
+        io.on('connection', function (socket) {
+            socket.emit('server', json);
+        });
+    }
     console.log("Server listening on port 8000...");
 });
 
