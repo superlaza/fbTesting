@@ -39,7 +39,7 @@ fs.readFile('./index.html', function (err, html) {
             var form = new formidable.IncomingForm();
 
             //set params
-            form.uploadDir = './img';
+            form.uploadDir = '../img';
             form.keepExtensions = true;
 
             //register listener on file reception event
