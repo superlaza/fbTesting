@@ -52,7 +52,7 @@ fs.readFile('./index.html', function (err, html) {
                 //file.path = '../uploads/'+file.name;
 
                 //HARDCODED FILE NAME FOR NOW, NEED TO TEST FOR HTML
-                file.path = '../uploads/data.html';
+                file.path = './uploads/data.html';
             });
 
             //register this callback to progress event to display progress
