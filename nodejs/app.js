@@ -62,6 +62,8 @@ fs.readFile('./index.html', function (err, html) {
             });
 
             form.on('end', function(){
+
+
                 fs.readFile('./uploads/wordcount.json', 'utf8', function (err, json) {
                     if (err) {
                         console.log(err);

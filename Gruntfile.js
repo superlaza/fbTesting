@@ -36,7 +36,7 @@ module.exports = function(grunt) {
                                 //there is a way to refresh instead of creating new tab, but it uses external tool
                                 //didn't have enough time
                                 require('open')('http://localhost:8000', 'C:/Users/David/AppData/Local/Google/Chrome SxS/Application/chrome');
-                            }, 1000);
+                            }, 1);
                         });
 
                         // refreshes browser when server reboots
@@ -44,7 +44,7 @@ module.exports = function(grunt) {
                             // Delay before server listens on port
                             setTimeout(function() {
                                 require('fs').writeFileSync('.rebooted', 'rebooted');
-                            }, 1000);
+                            }, 1);
                         });
                     },
                     env: {
@@ -68,7 +68,8 @@ module.exports = function(grunt) {
                     //https://github.com/gruntjs/grunt-contrib-watch#using-live-reload-with-the-browser-extension
                     //the other alternative is script injection during development using grunt-inject below
                     //https://github.com/ChrisWren/grunt-inject
-                    livereload: true
+                    livereload: true,
+                    spawn:false
                 }
             }
         }
