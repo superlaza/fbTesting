@@ -5,6 +5,7 @@ from pyquery import PyQuery as pq
 from json import dump
 from pyquery import PyQuery as pq
 from json import dump
+from datetime import datetime
 
 import argparse
 
@@ -19,6 +20,19 @@ import argparse
 
 #global vars
 #===========
+
+months = {'January': 1,
+    'February':2,
+    'March':3,
+    'April':4,
+    'May':5,
+    'June':6,
+    'July':7,
+    'August':8,
+    'September':9,
+    'October':10,
+    'November':11,
+    'December':12};
     
 #see timeLine
 dateDict = []
@@ -49,7 +63,28 @@ for thread in d('.thread').eq(0).items():
 
         tempMsg = {}
         tempMsg['user'] = user
-        tempMsg['date'] = date
+
+        #TODO issue #4
+        #parse date and make datetime object
+        #ex: Thursday, January 16, 2014 at 9:15pm EST
+        dateSplit = date.split(' ')
+        year = int(dateSplit[3])
+        day = int(dateSplit[2][:-1])
+        month = int(months[dateSplit[1]])
+
+        time = dateSplit[5].split(":")
+        #facebook gives 1-24, need 0-23
+        hour = int(time[0])-1
+        minute = int(time[1][:-2])
+        meridian = time[1][-2:]
+
+        tz = dateSplit[6]
+
+        if meridian == 'pm':
+            hour += 12
+        
+        tempMsg['date'] = str(datetime(year, month, day, hour, minute))
+
         tempMsg['text'] = text
 
         tempChat['messages'].append(tempMsg)
@@ -91,6 +126,7 @@ def wordCount(messages):
     return userList
 
 def timeLine(messages):
+    print "Starting analysis for time line plot..."
     msgs = iter(messages)
     try:
         m = msgs.next()
@@ -105,18 +141,18 @@ def timeLine(messages):
                 temp = mkdate(m['date'])
 
             dateDict.append({"date": date, "wordcount": wordCount})
-            fl.write(str(date)+','+str(wordCount)+'\n')
     except StopIteration:
-        print("No more messages.")
-        fl.close()
+        print("All messages have been analyzed.")
 
     with open('wordcount.json', 'w+') as fl2:
-        json.dump(dateDict, fp=fl2)
+        dump(dateDict, fp=fl2)
 
     print "timeLine"
 
 def mkdate(text):
-    return str(datetime.datetime.strptime(text, '%Y-%m-%dT%H:%M:%S.%fZ'))
+    #TODO issue #4
+    #return str(datetime.strptime(text, '%Y-%m-%dT%H:%M:%S.%fZ'))
+    return str(datetime.strptime(text, '%Y-%m-%d %H:%M:%S'))
 
 def timeLinePlot():
     fl = open('timeLine.csv')
