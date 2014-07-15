@@ -3,7 +3,7 @@ import json
 
 #escape the f, a.k.a get the f outta there!
 print 'Loading JSON object...'
-with open('C:\Users\Bird\Documents\FB Data\html\download') as jsonData:
+with open('messages.json') as jsonData:
     d = json.load(jsonData)
     print 'Finished'
     print '---------------------'
@@ -12,13 +12,6 @@ s = ''
 userList = {}
 while s != 'x':
     if s == '1':
-        #userList stucture:
-        # {
-        #   u1 : {
-        #           words : [[num]],
-        #           messages : [[num]]
-        #       }
-        #
         userList = process.wordCount(d['messages'])
         print 'Data:'
         for user in userList:

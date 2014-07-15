@@ -1,30 +1,19 @@
 import json
 import sys, nltk
 import datetime
-import numpy as np
 from pprint import pprint
-import matplotlib.pyplot as plt
-from matplotlib.dates import YearLocator, DayLocator, HourLocator, DateFormatter, drange
-from numpy import arange
 
 #see timeLine
 dateDict = []
 #see hourHistogram
 hourDict = {}
 
-with open('C:\Users\Bird\Documents\FB Data\html\download') as jsonData:
+with open('messages.json') as jsonData:
     d = json.load(jsonData)
     print 'Finished'
     print '---------------------'
 
 def wordCount(messages):
-    #userList stucture:
-    # {
-    #   u1 : {
-    #           words : [[num]],
-    #           messages : [[num]]
-    #       }
-    #
     userList = {}
     f = open('wordDump.txt','w')
     for m in messages:
@@ -69,24 +58,6 @@ def timeLine(messages):
 
     with open('wordcount.json', 'w+') as fl2:
         json.dump(dateDict, fp=fl2)
-
-    ############ this is old shit
-    # a = np.array(dateDict.items(), dtype=[('date', '<f64'), ('amt', '<f64')])
-
-    # fig, ax = plt.subplots()
-    # ax.plot_date(a['date'], a['amt'])
-
-    # # The hour locator takes the hour or sequence of hours you want to
-    # # tick, not the base multiple
-
-    # ax.xaxis.set_major_locator( YearLocator() )
-    # ax.xaxis.set_minor_locator( DayLocator(1) )
-    # ax.xaxis.set_major_formatter( DateFormatter('%Y-%m-%d') )
-
-    # ax.fmt_xdata = DateFormatter('%Y-%m-%d %H:%M:%S')
-    # fig.autofmt_xdate()
-
-    # plt.show()
 
 def mkdate(text):
     return str(datetime.datetime.strptime(text, '%Y-%m-%dT%H:%M:%S.%fZ'))
