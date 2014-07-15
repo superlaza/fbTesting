@@ -1,6 +1,21 @@
 from pyquery import PyQuery as pq
 from json import dump
-d = pq(filename = "messages.htm")
+from pyquery import PyQuery as pq
+from json import dump
+
+import argparse
+
+parser = argparse.ArgumentParser()
+parser.add_argument("filepath")
+args = parser.parse_args()
+
+filepath = args.filepath
+if not (filepath.endswith('.html') or filepath.endswith('.htm')):
+    print "Error: incorrect file type. Received "+args.filepath.split('.')[-1]+', need .htm or html'
+    exit(1)
+
+
+d = pq(filename = filepath)
 
 fb = {}
 fb['user'] = "David"
@@ -29,8 +44,11 @@ for thread in d('.thread').items():
 fb['chats'][str(list(userIDs))] = tempChat
 
     
-##with open('messages.json', 'w') as f:
-##    dump(fb, f)
+with open('messages.json', 'w') as f:
+    dump(fb, f)
+
+print "done"
+exit(0)
 
     
     
