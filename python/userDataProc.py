@@ -9,14 +9,14 @@ from datetime import datetime
 
 import argparse
 
-##parser = argparse.ArgumentParser()
-##parser.add_argument("filepath")
-##args = parser.parse_args()
-##
-##filepath = args.filepath
-##if not (filepath.endswith('.html') or filepath.endswith('.htm')):
-##    print "Error: incorrect file type. Received "+args.filepath.split('.')[-1]+', need .htm or html'
-##    exit(1)
+parser = argparse.ArgumentParser()
+parser.add_argument("filepath")
+args = parser.parse_args()
+
+filepath = args.filepath
+if not (filepath.endswith('.html') or filepath.endswith('.htm')):
+    print "Error: incorrect file type. Received "+args.filepath.split('.')[-1]+', need .htm or html'
+    exit(1)
 
 #global vars
 #===========
@@ -39,8 +39,8 @@ dateDict = []
 #see hourHistogram
 hourDict = {}
 
-#d = pq(filename = filepath)
-d = pq(filename = "messages.htm")
+d = pq(filename = filepath)
+#d = pq(filename = "messages.htm")
 
 fb = {}
 fb['user'] = "David"
