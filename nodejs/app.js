@@ -5,7 +5,7 @@ var url = require('url');
 var path =require('path');
 var mime = require('mime');//downloaded with npm
 var qs = require('querystring');
-
+var exec = require('child_process').spawn
 
 //for formidable
 var formidable = require('formidable');
@@ -23,11 +23,10 @@ var dataTransport = function(){this.data = undefined};
 dataTransport.prototype = new events.EventEmitter;
 var dt = new dataTransport();
 
-
 //read main file, when done launch server
 fs.readFile('./index.html', function (err, html) {
     if (err) {
-        console.log(err); 
+        console.log(err);
     }
 
     var app = http.createServer(function(req, res) {
@@ -49,10 +48,10 @@ fs.readFile('./index.html', function (err, html) {
                 //save to current directory
                 //need to specify file path at moment of file discovery
                 //otherwise it will be ignored when the writestream is created
-                //file.path = '../uploads/'+file.name;
+                file.path = './uploads/'+file.name;
 
                 //HARDCODED FILE NAME FOR NOW, NEED TO TEST FOR HTML
-                file.path = './uploads/data.html';
+//                file.path = './uploads/data.html';
             });
 
             //register this callback to progress event to display progress
@@ -62,28 +61,32 @@ fs.readFile('./index.html', function (err, html) {
             });
 
             form.on('end', function(){
+                var pythonChild = exec('python', ['python/userDataProc.py', './uploads/messages.htm']);
 
+                pythonChild.stdout.on('data', function (data) {
+                    if (data.toString().indexOf('timeLine') != -1) {
 
-                fs.readFile('./uploads/wordcount.json', 'utf8', function (err, json) {
-                    if (err) {
-                        console.log(err);
+                        fs.readFile('./wordcount.json', 'utf8', function (err, json) {
+                            if (err) {
+                                console.log(err);
+                            }
+
+                            dt.data = JSON.parse(json);
+                            console.log('dt.data has the json file')
+                        });
                     }
 
-                    dt.data = JSON.parse(json);
-                    //dt.emit('data');
-                   // dataFlag = true;
-                    //sendProcData(json);
+                    console.log('python out:  ' + data);
+                });
 
-                    /*
-                    io.on('connect', function (socket) {
-                        //socket.emit('server', JSON.parse(json));
+                pythonChild.stderr.on('data', function (data) {
+                    console.log('python errout: ' + data);
+                });
 
-                        /*testing
-                        socket.on('client', function (data) {
-                            console.log(data);
-                        });
-
-                    });*/
+                pythonChild.on('close', function (code) {
+                    if (code != 0) {
+                        console.log('python closed with an error')
+                    }
                 });
             });
 
@@ -103,7 +106,7 @@ fs.readFile('./index.html', function (err, html) {
                 req.on('data', function (data) {
                     body += data;
                     // 1e6 === 1 * Math.pow(10, 6) === 1 * 1000000 ~~~ 1MB
-                    
+
                     if (body.length > 1e6) {
                         //In case of flood, ends connection with 101
                         req.connection.destroy();
@@ -129,7 +132,7 @@ fs.readFile('./index.html', function (err, html) {
             }
 
             return; //end transaction
-            
+
         }//end POST handler
 
         //if it's not a post, serve the file being requested
@@ -174,8 +177,8 @@ fs.readFile('./index.html', function (err, html) {
     app.listen(8000);
 
     io.on('connection', function(socket){
-        console.log(dt.data);
         socket.emit('server', dt.data);
+        console.log('sent the json');
         /*
         dt.on('data', function(){
             console.log('when');
