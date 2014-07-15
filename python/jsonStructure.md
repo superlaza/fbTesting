@@ -9,27 +9,10 @@
                     user : George3,
                     date : 07/04/1776 (+hrs:sec), //use some standard date format
                     text : "dude, pay taxes"
+                    words : [[word_count]]
                 },
-                {
-                    user : Ben,
-                    date : 07/04/1776 (+hrs:sec),
-                    text : "FUCK. THAT."
-                }
-            ],
-        },
 
-        Tom : {
-            messages : [//array
-                {
-                    user : Tom,
-                    date : 07/04/1776 (+hrs:sec),
-                    text : "he said WHAT?"
-                },
-                {
-                    user : Ben,
-                    date : 07/04/1776 (+hrs:sec),
-                    text : "I know, right?"
-                }
+                ...
             ],
         },
 
