@@ -35,3 +35,5 @@ build/Release
 .idea/
 
 uploads/
+
+Gruntfile.js

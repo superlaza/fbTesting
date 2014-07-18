@@ -5,7 +5,7 @@ body {background-image: url("../img/background.jpg");}
 
 @font-face {
     font-family: myFirstFont;
-    src: url(/css/fonts/Sansation_Bold.ttf);
+    src: url(/css/fonts/sansation_bold.ttf);
 }
 
 #intro{
@@ -31,9 +31,9 @@ body {background-image: url("../img/background.jpg");}
 }
 
 #uploadImg{
-    width: 25%;
+    width: 200px;
     height: 100%;
-    margin: 0;
+    margin: 0px;
     -webkit-border-radius: 30px;
     transition: margin 1s;
 }
