@@ -134,5 +134,3 @@ nsp.on('connection', function(socket){
     });
     console.log('sent the json');
 });
-
-
