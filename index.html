@@ -14,7 +14,7 @@
     <!--I don't really like pulling from the CDN, but local repo doesn't work-->
     <!--<script type="application/javascript" src="./bower_components/socket.io/lib/socket.js"></script>-->
     <!--<script src="https://cdn.socket.io/socket.io-1.0.6.js"></script>-->
-    <script type="application/javascript" src="node_modules/socket.io/node_modules/socket.io-client/socket.io.js"></script>
+    <script type="application/javascript" src="./node_modules/socket.io/node_modules/socket.io-client/socket.io.js"></script>
 
     <script type="text/javascript">
         //<editor-fold desc="DROPZONE.JS">
@@ -200,7 +200,8 @@
 <!--currently server detects post request to handle form action-->
     <div id="uploadCont">
         <img id="uploadImg" class="upload" src="img\fb_upload.png">
-        <form action="nodejs/app.js"
+        <!--TODO: action is a temporary key to look for in node app-->
+        <form action="upload"
               class="dropzone upload"
               id="uploadId">
             <!--<div id="dropZoneText">Drop your shit here, please.</div>-->

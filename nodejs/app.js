@@ -3,7 +3,7 @@ var fs = require('fs');
 var http = require('http');
 var url = require('url');
 var path =require('path');
-var mime = require('mime');//downloaded with npm
+var mime = require('mime');
 var qs = require('querystring');
 var exec = require('child_process').spawn
 
