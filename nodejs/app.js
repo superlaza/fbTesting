@@ -152,15 +152,16 @@ var port = 8000;
 server = app.listen(port, console.log('Listening on port '+port+'...'));
 
 var io = socket.listen(server);
+var nsp = io.of('/data');//custom namespace
 
-io.on('connection', function(socket){
+nsp.on('connection', function(socket){
+    console.log('what the fuck');
+});
+
+nsp.on('connection', function(socket){
+    console.log(nsp);
     socket.emit('server', dt.data);
-    console.log(dt.data);
+    //console.log(dt.data);
     console.log('sent the json');
 });
 
-function sendProcData(json) {
-    io.on('connection', function (socket) {
-        socket.emit('server', json);
-    });
-}

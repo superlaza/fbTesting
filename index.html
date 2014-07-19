@@ -43,7 +43,8 @@
                                     "margin-left": "37.5%"
                                 });
                                 setTimeout(function(){
-                                    var socket = io('http://localhost');
+//                                    var socket = io('http://localhost');
+                                    var socket = io('/data');//connect to custom namespace
                                     socket.on('server', function (data) {
                                         console.log(data);
                                         d3init(data);
