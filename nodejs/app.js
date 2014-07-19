@@ -148,7 +148,7 @@ app.post('/upload', function(req, res){
     }
 });
 
-var port = 8001;
+var port = 8000;
 server = app.listen(port, console.log('Listening on port '+port+'...'));
 
 var io = socket.listen(server);
