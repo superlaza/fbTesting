@@ -728,6 +728,9 @@ require.register("dropzone/lib/dropzone.js", function (exports, module) {
             _this.hiddenFileInput.style.height = "0";
             _this.hiddenFileInput.style.width = "0";
             document.body.appendChild(_this.hiddenFileInput);
+
+           //_this.hiddenFileInput.setAttribute("id", "hiddenInput");//superlaza
+
             return _this.hiddenFileInput.addEventListener("change", function() {
               var file, files, _i, _len;
               files = _this.hiddenFileInput.files;
@@ -892,7 +895,11 @@ require.register("dropzone/lib/dropzone.js", function (exports, module) {
       if (this.options.dictFallbackText) {
         fieldsString += "<p>" + this.options.dictFallbackText + "</p>";
       }
-      fieldsString += "<input type=\"file\" name=\"" + (this._getParamName(0)) + "\" " + (this.options.uploadMultiple ? 'multiple="multiple"' : void 0) + " /><input type=\"submit\" value=\"Upload!\"></div>";
+
+      fieldsString += "<input type=\"file\" name=\"" + (this._getParamName(0)) + "\" "
+          + (this.options.uploadMultiple ? 'multiple="multiple"' : void 0)
+          + " /><input type=\"submit\" value=\"Upload!\"></div>";
+
       fields = Dropzone.createElement(fieldsString);
       if (this.element.tagName !== "FORM") {
         form = Dropzone.createElement("<form action=\"" + this.options.url + "\" enctype=\"multipart/form-data\" method=\"" + this.options.method + "\"></form>");

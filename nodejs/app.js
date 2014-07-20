@@ -12,6 +12,10 @@ var socket = require('socket.io');//socket.io fast message relay
 var colors = require('colors');//pretty console output
 var express = require('express');
 
+//relative to directory from which exec spawn is invoked
+var outputDirs = {"wordcount":"./data/wordcount.json",
+                  "hour_histogram": "./data/hourhisto.json"};
+
 //<editor-fold desc="Formidable Initialization and Event Registration">
 //TODO: ALL POSSIBLE FORM STATE EVOLUTIONS SHOULD BE ACCOUNTED FOR
 // parse a file upload
@@ -37,19 +41,34 @@ form.on('progress', function(bytesReceived, bytesExpected) {
 });
 
 form.on('end', function(){
-    var pythonChild = exec('python', ['python/userDataProc.py', './uploads/messages.htm']);
+    var pythonChild = exec('python', ['python/userDataProc.py', './uploads/messages.htm', JSON.stringify(outputDirs)]);
 
     pythonChild.stdout.on('data', function (data) {
-        if (data.toString().indexOf('timeLine') != -1) {
+        //these consecutive if's can be iterated programmatically
+        //need to ensure that data is streamed as its received from python
+        if (data.toString().indexOf('timeline') != -1) {
 
-            fs.readFile('./wordcount.json', 'utf8', function (err, json) {
+            fs.readFile(outputDirs['wordcount'], 'utf8', function (err, json) {
                 if (err) {
                     console.log(err.toString().red);
                 }
 
                 //pick our socket from the list of sockets connected under this namespace
-                nsp.connected[sockets['dataSocket']].emit('server', JSON.parse(json));
-                console.log('sent data to frontend....')
+                nsp.connected[sockets['dataSocket']].emit('bar', JSON.parse(json));
+                console.log('sent timeline data to frontend....')
+            });
+        }
+
+        if (data.toString().indexOf('hour_histogram') != -1) {
+
+            fs.readFile(outputDirs['hour_histogram'], 'utf8', function (err, json) {
+                if (err) {
+                    console.log(err.toString().red);
+                }
+
+                //pick our socket from the list of sockets connected under this namespace
+                nsp.connected[sockets['dataSocket']].emit('radar', JSON.parse(json));
+                console.log('sent hour histogram data to frontend....')
             });
         }
 
@@ -132,5 +151,4 @@ nsp.on('connection', function(socket){
     socket.on('customSocket', function(data){//receiving custom socket id
         sockets[data.customId] = socket.id;
     });
-    console.log('sent the json');
 });
