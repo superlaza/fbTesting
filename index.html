@@ -9,11 +9,15 @@
     <link rel="stylesheet" type="text/css" href="css/main.css">
     <link rel="stylesheet" href="./css/animate.css">
     <link rel="stylesheet" href="./css/dropzone.css">
+    <link rel="stylesheet" href="./js/vendor/jquery-ui-1.11.0/jquery-ui.css">
+
     <script type="application/javascript" src="./js/vendor/jquery-1.11.1.js"></script>
     <script type="application/javascript" src="./js/vendor/dropzone.js"></script>
     <script type="application/javascript" src="./js/vendor/d3.js"></script>
     <script type="application/javascript" src="./js/vendor/RadarChart.js"></script>
     <script type="application/javascript" src="./node_modules/socket.io/node_modules/socket.io-client/socket.io.js"></script>
+
+    <script src="./js/vendor/jquery-ui-1.11.0/jquery-ui.min.js"></script>
 
     <script type="text/javascript">
 
@@ -34,10 +38,34 @@
         });
         socket.on('bar', function (data) {
             //console.log(data);
+
+            //TODO: Modularize this code
+            var tabs = document.getElementById('tabs');
+            var ul = tabs.childNodes[1];
+            var temp = document.createElement('div');
+            temp.id = "fragment-1";
+            temp.innerHTML = '<div id="bar"></div>';
+            tabs.appendChild(temp);
+            temp = document.createElement('li');
+            temp.innerHTML = '<a href="#fragment-1">Words Over Time</a>';
+            ul.appendChild(temp);
+            $('#tabs').tabs('refresh');
+
             bar_init(data);
         });
         socket.on('radar', function(data) {
-            console.log(data);
+            //console.log(data);
+            var tabs = document.getElementById('tabs');
+            var ul = tabs.childNodes[1];
+            var temp = document.createElement('div');
+            temp.id = "fragment-2";
+            temp.innerHTML = '<div id="radar"><div id="chart"></div></div>';
+            tabs.appendChild(temp);
+            temp = document.createElement('li');
+            temp.innerHTML = '<a href="#fragment-2">Words by Hour</a>';
+            ul.appendChild(temp);
+            $('#tabs').tabs('refresh');
+
             radar_init(data);
         });
         //</editor-fold>
@@ -57,7 +85,7 @@
                     });
                     this.on('drop', function(evt){
                         //console.log($('#testing').change(validateForm()));//client-side form validation
-
+                        $('#tabs').show();
                         var uploadBox = $('#uploadId');
                         uploadBox.removeClass('animated pulse')
                                 .addClass('animated rubberBand');
@@ -106,7 +134,7 @@
                     })])
                     .range([0, h]);
 
-            var svg = d3.select("body")
+            var svg = d3.select("#bar")
                     .append("svg")
                     .attr("width", w)
                     .attr("height", h)
@@ -167,11 +195,11 @@
 
                     });
 
+
             d3.select("#btnSort")
                     .on("click", function () {
                         sortBars();
                     });
-
 
             var sortBars = function () {
                 svg.selectAll("rect")
@@ -197,7 +225,7 @@
         }
         //</editor-fold>
 
-//      <editor-fold desc="D3 Radar">
+        //<editor-fold desc="D3 Radar">
         function radar_init(dataset) {
             var w = 500, h = 500;
 
@@ -279,9 +307,14 @@
                     .text(function (d) {
                         return d;
                     });
-        };
-//      </editor-fold>
+        }
+        //</editor-fold>
 
+        //<editor-fold desc="jQuery Tabs">
+        $(function(){
+            $('#tabs').tabs().hide();
+        });
+        //</editor-fold>
     </script>
 
 
@@ -302,9 +335,12 @@
         </form>
     </div>
 
-    <div id="radar">
-        <div id="chart"></div>
+    <div id="tabs">
+        <ul>
+        </ul>
     </div>
+
+
 
     <div id="tooltip" class="hidden">
         <p><strong>This day!</strong></p>
