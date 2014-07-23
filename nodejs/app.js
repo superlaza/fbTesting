@@ -12,6 +12,8 @@ var socket = require('socket.io');//socket.io fast message relay
 var colors = require('colors');//pretty console output
 var express = require('express');
 var session = require('express-session');
+var cookieparser = require('cookie-parser')('Hash Browns');
+var sessionStore = new session.MemoryStore();
 
 //relative to directory from which exec spawn is invoked
 var outputDirs = {"wordcount":"./data/wordcount.json",
@@ -19,9 +21,11 @@ var outputDirs = {"wordcount":"./data/wordcount.json",
 
 var app = express();
 
+app.use(cookieparser);
 app.use(session(
         {
-            secret: 'David is gay',
+            secret: 'Hash Browns',
+            store: sessionStore,
             genid: function () {
                 return genuuid();
             }
@@ -40,6 +44,9 @@ app.get('/', function(req, res){
         res.set('Content-Type', 'text/html');
         res.send(html);
     });
+    console.log(req.sessionID);
+    console.log('\n\n');
+    console.log('\n\n');
 });
 
 //any other request, find file and server
@@ -154,12 +161,38 @@ app.post('/upload', function(req, res){
 
 var port = 8000;
 var server = app.listen(port, console.log('Listening on port '+port+'...'));
+var store = new session.MemoryStore();
 
 var io = socket.listen(server);
+io.set('authorization', function(handshake, callback) {
+    if (handshake.headers.cookie) {
+        // pass a req, res, and next as if it were middleware
+        cookieparser(handshake, null, function(err) {
+            handshake.sessionID = handshake.signedCookies['connect.sid'];
+            // or if you don't have signed cookies
+            handshake.sessionID = handshake.cookies['connect.sid'];
+
+            sessionStore.get(handshake.sessionID, function (err, session) {
+                if (err || !session) {
+                    // if we cannot grab a session, turn down the connection
+                    callback('Session not found.', false);
+                } else {
+                    // save the session data and accept the connection
+                    handshake.session = session;
+                    callback(null, true);
+                }
+            });
+        });
+    } else {
+        return accept('No session.', false);
+    }
+    callback(null, true);
+});
 var nsp = io.of('/data');//custom namespace, automatically hoisted variable => visible to form
 var sockets = {};//socket dict
 
 nsp.on('connection', function(socket){
+    console.log((socket.handshake.sessionID));
     socket.on('customSocket', function(data){//receiving custom socket id
         sockets[data.customId] = socket.id;
     });
