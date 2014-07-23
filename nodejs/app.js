@@ -96,7 +96,8 @@ app.post('/upload', function(req, res){
 
     form.on('end', function(){
         var pythonChild = exec('python', ['python/userDataProc.py', './uploads/messages.htm', JSON.stringify(outputDirs)]);
-
+        console.log(sockets.length);
+        console.log(req.sessionID.toString().red);
         pythonChild.stdout.on('data', function (data) {
             //these consecutive if's can be iterated programmatically
             //need to ensure that data is streamed as its received from python
@@ -108,7 +109,7 @@ app.post('/upload', function(req, res){
                     }
 
                     //pick our socket from the list of sockets connected under this namespace
-                    nsp.connected[sockets['dataSocket']].emit('bar', JSON.parse(json));
+                    nsp.connected[sockets[req.sessionID]].emit('bar', JSON.parse(json));
                     console.log('sent timeline data to frontend....')
                 });
             }
@@ -121,7 +122,7 @@ app.post('/upload', function(req, res){
                     }
 
                     //pick our socket from the list of sockets connected under this namespace
-                    nsp.connected[sockets['dataSocket']].emit('radar', JSON.parse(json));
+                    nsp.connected[sockets[req.sessionID]].emit('radar', JSON.parse(json));
                     console.log('sent hour histogram data to frontend....')
                 });
             }
@@ -161,41 +162,39 @@ app.post('/upload', function(req, res){
 
 var port = 8000;
 var server = app.listen(port, console.log('Listening on port '+port+'...'));
-var store = new session.MemoryStore();
 
 var io = socket.listen(server);
-io.set('authorization', function(handshake, callback) {
+var nsp = io.of('/data').use( function (socket, next) {
+    var handshake = socket.request;
     if (handshake.headers.cookie) {
         // pass a req, res, and next as if it were middleware
         cookieparser(handshake, null, function(err) {
             handshake.sessionID = handshake.signedCookies['connect.sid'];
             // or if you don't have signed cookies
-            handshake.sessionID = handshake.cookies['connect.sid'];
+//            handshake.sessionID = handshake.cookies['connect.sid'];
 
-            sessionStore.get(handshake.sessionID, function (err, session) {
-                if (err || !session) {
-                    // if we cannot grab a session, turn down the connection
-                    callback('Session not found.', false);
-                } else {
-                    // save the session data and accept the connection
-                    handshake.session = session;
-                    callback(null, true);
-                }
-            });
+//            sessionStore.get(handshake.sessionID, function (err, session) {
+//                if (err || !session) {
+//                    console.log('didn"t find session');
+//                    // if we cannot grab a session, turn down the connection
+//                    callback('Session not found.', false);
+//                } else {
+//                    // save the session data and accept the connection
+//                    handshake.session = session;
+//                    callback(null, true);
+//                }
+//            });
         });
+        next();
     } else {
-        return accept('No session.', false);
+        next(new Error('No session found'));
     }
-    callback(null, true);
-});
-var nsp = io.of('/data');//custom namespace, automatically hoisted variable => visible to form
+});//custom namespace, automatically hoisted variable => visible to form
 var sockets = {};//socket dict
 
 nsp.on('connection', function(socket){
-    console.log((socket.handshake.sessionID));
-    socket.on('customSocket', function(data){//receiving custom socket id
-        sockets[data.customId] = socket.id;
-    });
+    console.log(socket.request.sessionID);
+    sockets[socket.request.sessionID] = socket;
 });
 
 function genuuid() {
