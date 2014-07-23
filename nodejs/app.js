@@ -11,89 +11,22 @@ var util = require('util');
 var socket = require('socket.io');//socket.io fast message relay
 var colors = require('colors');//pretty console output
 var express = require('express');
+var session = require('express-session');
 
 //relative to directory from which exec spawn is invoked
 var outputDirs = {"wordcount":"./data/wordcount.json",
-                  "hour_histogram": "./data/hourhisto.json"};
-
-//<editor-fold desc="Formidable Initialization and Event Registration">
-//TODO: ALL POSSIBLE FORM STATE EVOLUTIONS SHOULD BE ACCOUNTED FOR
-// parse a file upload
-var form = new formidable.IncomingForm();
-
-//set params
-form.keepExtensions = true;
-
-//register listener on file reception event..
-//in order to change file path to one with file's original name.
-//default generates random name for storage
-form.on('fileBegin', function(name, file) {
-    //save to current directory
-    //need to specify file path at moment of file discovery
-    //otherwise it will be ignored when the writestream is created
-    file.path = './uploads/'+file.name;
-});
-
-//register this callback to progress event to display progress
-form.on('progress', function(bytesReceived, bytesExpected) {
-    var percent_complete = (bytesReceived / bytesExpected) * 100;
-    console.log(percent_complete.toFixed(2));
-});
-
-form.on('end', function(){
-    var pythonChild = exec('python', ['python/userDataProc.py', './uploads/messages.htm', JSON.stringify(outputDirs)]);
-
-    pythonChild.stdout.on('data', function (data) {
-        //these consecutive if's can be iterated programmatically
-        //need to ensure that data is streamed as its received from python
-        if (data.toString().indexOf('timeline') != -1) {
-
-            fs.readFile(outputDirs['wordcount'], 'utf8', function (err, json) {
-                if (err) {
-                    console.log(err.toString().red);
-                }
-
-                //pick our socket from the list of sockets connected under this namespace
-                nsp.connected[sockets['dataSocket']].emit('bar', JSON.parse(json));
-                console.log('sent timeline data to frontend....')
-            });
-        }
-
-        if (data.toString().indexOf('hour_histogram') != -1) {
-
-            fs.readFile(outputDirs['hour_histogram'], 'utf8', function (err, json) {
-                if (err) {
-                    console.log(err.toString().red);
-                }
-
-                //pick our socket from the list of sockets connected under this namespace
-                nsp.connected[sockets['dataSocket']].emit('radar', JSON.parse(json));
-                console.log('sent hour histogram data to frontend....')
-            });
-        }
-
-        console.log('python out:  ' + data);
-    });
-
-    pythonChild.stderr.on('data', function (data) {
-        console.log('python errout: ' + data);
-    });
-
-    pythonChild.on('close', function (code) {
-        if (code != 0) {
-            console.log('python closed with an error')
-        }
-    });
-});
-
-form.on('error', function(err){
-    console.log("File upload error: "+err);
-    res.send("File upload error: "+err, 500);
-});
-
-//</editor-fold>
+    "hour_histogram": "./data/hourhisto.json"};
 
 var app = express();
+
+app.use(session(
+        {
+            secret: 'David is gay',
+            genid: function () {
+                return genuuid();
+            }
+        })
+);
 
 //<editor-fold desc="Express Routes">
 //main route
@@ -129,6 +62,85 @@ app.get('*', function(req, res){
 //TODO: modify action in html to use custom router
 app.post('/upload', function(req, res){
     //think of writing response in form.on('end',....);
+
+    //<editor-fold desc="Formidable Initialization and Event Registration">
+    //TODO: ALL POSSIBLE FORM STATE EVOLUTIONS SHOULD BE ACCOUNTED FOR
+    // parse a file upload
+    var form = new formidable.IncomingForm();
+
+    //set params
+    form.keepExtensions = true;
+
+    //register listener on file reception event..
+    //in order to change file path to one with file's original name.
+    //default generates random name for storage
+    form.on('fileBegin', function(name, file) {
+        //save to current directory
+        //need to specify file path at moment of file discovery
+        //otherwise it will be ignored when the writestream is created
+        file.path = './uploads/'+file.name;
+    });
+
+    //register this callback to progress event to display progress
+    form.on('progress', function(bytesReceived, bytesExpected) {
+        var percent_complete = (bytesReceived / bytesExpected) * 100;
+        console.log(percent_complete.toFixed(2));
+    });
+
+    form.on('end', function(){
+        var pythonChild = exec('python', ['python/userDataProc.py', './uploads/messages.htm', JSON.stringify(outputDirs)]);
+
+        pythonChild.stdout.on('data', function (data) {
+            //these consecutive if's can be iterated programmatically
+            //need to ensure that data is streamed as its received from python
+            if (data.toString().indexOf('timeline') != -1) {
+
+                fs.readFile(outputDirs['wordcount'], 'utf8', function (err, json) {
+                    if (err) {
+                        console.log(err.toString().red);
+                    }
+
+                    //pick our socket from the list of sockets connected under this namespace
+                    nsp.connected[sockets['dataSocket']].emit('bar', JSON.parse(json));
+                    console.log('sent timeline data to frontend....')
+                });
+            }
+
+            if (data.toString().indexOf('hour_histogram') != -1) {
+
+                fs.readFile(outputDirs['hour_histogram'], 'utf8', function (err, json) {
+                    if (err) {
+                        console.log(err.toString().red);
+                    }
+
+                    //pick our socket from the list of sockets connected under this namespace
+                    nsp.connected[sockets['dataSocket']].emit('radar', JSON.parse(json));
+                    console.log('sent hour histogram data to frontend....')
+                });
+            }
+
+            console.log('python out:  ' + data);
+        });
+
+        pythonChild.stderr.on('data', function (data) {
+            console.log('python errout: ' + data);
+        });
+
+        pythonChild.on('close', function (code) {
+            if (code != 0) {
+                console.log('python closed with an error')
+            }
+        });
+    });
+
+    form.on('error', function(err){
+        console.log("File upload error: "+err);
+        res.send("File upload error: "+err, 500);
+    });
+
+    //</editor-fold>
+
+
     form.parse(req, function(err, fields, files) {
         if(!res.headersSent) {//if user uploads file, refreshes, then uploads again, app will crash without this check
             res.writeHead(200, {'content-type': 'text/plain'});
@@ -152,3 +164,7 @@ nsp.on('connection', function(socket){
         sockets[data.customId] = socket.id;
     });
 });
+
+function genuuid() {
+    return (((1 + Math.random()) * 0x10000) | 0).toString(16).substring(1);
+}
