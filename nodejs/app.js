@@ -11,9 +11,12 @@ var util = require('util');
 var socket = require('socket.io');//socket.io fast message relay
 var colors = require('colors');//pretty console output
 var express = require('express');
-var session = require('express-session');
-var cookieparser = require('cookie-parser')('Hash Browns');
-var sessionStore = new session.MemoryStore();
+var session = require('express-session');//session manager for stateful web
+
+var key = "Hash Browns";
+
+var cookieparser = require('cookie-parser')(key);
+var RedisStore = require('connect-redis')(session);
 
 //relative to directory from which exec spawn is invoked
 var outputDirs = {"wordcount":"./data/wordcount.json",
@@ -22,10 +25,27 @@ var outputDirs = {"wordcount":"./data/wordcount.json",
 var app = express();
 
 app.use(cookieparser);
+
+//client: An existing redis client object you normally get from redis.createClient()
+//host: Redis server hostname
+//port: Redis server portno
+//ttl: Redis session TTL in seconds
+//db: Database index to use
+//pass: Password for Redis authentication
+//prefix: Key prefix defaulting to "sess:"
+//url: String that contains connection information in a single url (redis://user:pass@host:port/db)
+//... Remaining options passed to the redis createClient() method.
+var options = {
+    host: 'localhost',
+    port: 6379
+};
+
+console.log(new RedisStore());
+
 app.use(session(
         {
-            secret: 'Hash Browns',
-            store: sessionStore,
+            secret: key,
+            store: new RedisStore(),
             genid: function () {
                 return genuuid();
             }
@@ -44,7 +64,7 @@ app.get('/', function(req, res){
         res.set('Content-Type', 'text/html');
         res.send(html);
     });
-    console.log(req.sessionID);
+    console.log(req.sessionID.toString().yellow);
     console.log('\n\n');
     console.log('\n\n');
 });
@@ -193,7 +213,7 @@ var nsp = io.of('/data').use( function (socket, next) {
 var sockets = {};//socket dict
 
 nsp.on('connection', function(socket){
-    console.log(socket.request.sessionID);
+    console.log(socket.request.sessionID.toString().green);
     sockets[socket.request.sessionID] = socket;
 });
 
