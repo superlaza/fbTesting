@@ -35,12 +35,12 @@ app.use(cookieparser);
 //prefix: Key prefix defaulting to "sess:"
 //url: String that contains connection information in a single url (redis://user:pass@host:port/db)
 //... Remaining options passed to the redis createClient() method.
+
+//currently using default options
 var options = {
     host: 'localhost',
     port: 6379
 };
-
-console.log(new RedisStore());
 
 app.use(session(
         {
@@ -116,7 +116,6 @@ app.post('/upload', function(req, res){
 
     form.on('end', function(){
         var pythonChild = exec('python', ['python/userDataProc.py', './uploads/messages.htm', JSON.stringify(outputDirs)]);
-        console.log(sockets.length);
         console.log(req.sessionID.toString().red);
         pythonChild.stdout.on('data', function (data) {
             //these consecutive if's can be iterated programmatically
@@ -214,7 +213,7 @@ var sockets = {};//socket dict
 
 nsp.on('connection', function(socket){
     console.log(socket.request.sessionID.toString().green);
-    sockets[socket.request.sessionID] = socket;
+    sockets[socket.request.sessionID] = socket.id;
 });
 
 function genuuid() {
