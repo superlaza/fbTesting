@@ -137,7 +137,7 @@ def timeline(messages):
     except StopIteration:
         print("All messages have been analyzed.")
 
-    with open(outputDirs['wordcount'], 'w+') as f:
+    with open("./users/"+outputDirs['user']+outputDirs['dirs']['wordcount'], 'w+') as f:
         dump(date_dict, fp=f)
 
     print "timeline"
@@ -162,7 +162,7 @@ def hour_histogram(messages):
         else:
             hour_arr.append({"axis": (_hour+1), "value": 0})
 
-    with open(outputDirs['hour_histogram'], 'w+') as f:
+    with open("./users/"+outputDirs['user']+outputDirs['dirs']['hour_histogram'], 'w+') as f:
         dump(hour_arr, fp=f)
 
     print "hour_histogram"

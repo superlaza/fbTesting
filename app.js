@@ -12,6 +12,7 @@ var socket = require('socket.io');//socket.io fast message relay
 var colors = require('colors');//pretty console output
 var express = require('express');
 var session = require('express-session');//session manager for stateful web
+var mkdirp = require('mkdirp');//for directory creation
 
 var key = "Hash Browns";
 
@@ -19,8 +20,8 @@ var cookieparser = require('cookie-parser')(key);
 var RedisStore = require('connect-redis')(session);
 
 //relative to directory from which exec spawn is invoked
-var outputDirs = {"wordcount":"./data/wordcount.json",
-    "hour_histogram": "./data/hourhisto.json"};
+var outputDirs = {"wordcount": "/data/wordcount.json",
+    "hour_histogram": "/data/hourhisto.json"};
 
 var app = express();
 
@@ -90,6 +91,24 @@ app.get('*', function(req, res){
 app.post('/upload', function(req, res){
     //think of writing response in form.on('end',....);
 
+    var userPath = "./users/"+req.sessionID.toString();
+    //make directory for specific user issuing request
+    if (!fs.existsSync(userPath)) {
+        mkdirp(userPath, function (err) {
+            if (err) console.error(err.toString().red);
+            else console.log('Successfully created directory for user '+userPath+'!');
+
+            mkdirp(userPath+'/uploads', function (err) {
+                if (err) console.error(err.toString().red);
+                else console.log('Successfully created directory for user '+userPath+'/uploads'+'!');
+            });
+            mkdirp(userPath+'/data', function (err) {
+                if (err) console.error(err.toString().red);
+                else console.log('Successfully created directory for user '+userPath+'/data'+'!');
+            });
+        });
+    }
+
     //<editor-fold desc="Formidable Initialization and Event Registration">
     //TODO: ALL POSSIBLE FORM STATE EVOLUTIONS SHOULD BE ACCOUNTED FOR
     // parse a file upload
@@ -105,7 +124,8 @@ app.post('/upload', function(req, res){
         //save to current directory
         //need to specify file path at moment of file discovery
         //otherwise it will be ignored when the writestream is created
-        file.path = './uploads/'+file.name;
+        file.path = userPath+'/uploads/'+file.name;
+        console.log(file.path);
     });
 
     //register this callback to progress event to display progress
@@ -115,14 +135,14 @@ app.post('/upload', function(req, res){
     });
 
     form.on('end', function(){
-        var pythonChild = exec('python', ['python/userDataProc.py', './uploads/messages.htm', JSON.stringify(outputDirs)]);
+        var pythonChild = exec('python', ['python/userDataProc.py', userPath+'/uploads/messages.htm', JSON.stringify({"user":req.sessionID.toString(), "dirs":outputDirs})]);
         console.log(req.sessionID.toString().red);
         pythonChild.stdout.on('data', function (data) {
             //these consecutive if's can be iterated programmatically
             //need to ensure that data is streamed as its received from python
             if (data.toString().indexOf('timeline') != -1) {
 
-                fs.readFile(outputDirs['wordcount'], 'utf8', function (err, json) {
+                fs.readFile(userPath+outputDirs['wordcount'], 'utf8', function (err, json) {
                     if (err) {
                         console.log(err.toString().red);
                     }
@@ -135,7 +155,7 @@ app.post('/upload', function(req, res){
 
             if (data.toString().indexOf('hour_histogram') != -1) {
 
-                fs.readFile(outputDirs['hour_histogram'], 'utf8', function (err, json) {
+                fs.readFile(userPath+outputDirs['hour_histogram'], 'utf8', function (err, json) {
                     if (err) {
                         console.log(err.toString().red);
                     }
