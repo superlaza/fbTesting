@@ -12,7 +12,6 @@ var socket = require('socket.io');//socket.io fast message relay
 var colors = require('colors');//pretty console output
 var express = require('express');
 var session = require('express-session');//session manager for stateful web
-var mkdirp = require('mkdirp');//for directory creation
 
 var key = "Hash Browns";
 
