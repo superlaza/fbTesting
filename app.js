@@ -22,6 +22,8 @@ var RedisStore = require('connect-redis')(session);
 var outputDirs = {"wordcount": "/data/wordcount.json",
     "hour_histogram": "/data/hourhisto.json"};
 
+var userData = {};
+
 var app = express();
 
 app.use(cookieparser);
@@ -68,6 +70,20 @@ app.get('/', function(req, res){
     console.log('\n\n');
     console.log('\n\n');
 });
+//for live search, SHOULD ONLY SHOW AFTER WE ARE SURE WE HAVE
+//USER DATA
+app.get('/livesearch.js', function(req,res){
+    var url_parts = url.parse(req.url, true);
+    var query = url_parts.query;
+    var users = Object.keys(userData[req.sessionID]['chats']);
+    var results = [];
+    for(var i=0; i<users.length; ++i){
+        if(users[i].indexOf(query.q) != -1){
+            results.push(users[i]);
+        }
+    }
+    res.end(JSON.stringify(results));
+});
 
 //any other request, find file and server
 app.get('*', function(req, res){
@@ -86,7 +102,7 @@ app.get('*', function(req, res){
 });
 
 //post handling
-//TODO: modify action in html to use custom router
+//TODOO: modify action in html to use custom router
 app.post('/upload', function(req, res){
     //think of writing response in form.on('end',....);
 
@@ -127,7 +143,7 @@ app.post('/upload', function(req, res){
     }
 
     //<editor-fold desc="Formidable Initialization and Event Registration">
-    //TODO: ALL POSSIBLE FORM STATE EVOLUTIONS SHOULD BE ACCOUNTED FOR
+    //TODOO: ALL POSSIBLE FORM STATE EVOLUTIONS SHOULD BE ACCOUNTED FOR
     // parse a file upload
     var form = new formidable.IncomingForm();
 
@@ -193,6 +209,16 @@ app.post('/upload', function(req, res){
             if (code != 0) {
                 console.log('python closed with an error')
             }
+
+            //when python outputs the user json file, load it up
+            fs.readFile('./users/'+req.sessionID+'/messages.json', function (err, json) {
+                if (err) {
+                    console.log(err.toString().red);
+                    res.send(404);
+                    return;
+                }
+                userData[req.sessionID] = JSON.parse(json);
+            });
         });
     });
 
@@ -250,6 +276,19 @@ var sockets = {};//socket dict
 nsp.on('connection', function(socket){
     console.log(socket.request.sessionID.toString().green);
     sockets[socket.request.sessionID] = socket.id;
+
+    //if the user already uploaded the messages file, find it
+    //also should remove upload box, or put a re-upload box
+    if (fs.existsSync("users/"+socket.request.sessionID+"/messages.json")){
+        fs.readFile('./users/'+socket.request.sessionID+'/messages.json', function (err, json) {
+            if (err) {
+                console.log(err.toString().red);
+                res.send(404);
+                return;
+            }
+            userData[socket.request.sessionID] = JSON.parse(json);
+        });
+    }
 });
 
 function genuuid() {
