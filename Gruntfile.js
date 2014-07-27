@@ -6,11 +6,22 @@ module.exports = function(grunt) {
     // load all grunt tasks from the package.json that matches the `grunt-*` pattern
     require('load-grunt-tasks')(grunt);
     var config = grunt.file.readJSON('grunt-config.json');
+    //Functions used to run background
+
     // Project configuration.
     grunt.initConfig({
+        pkg: grunt.file.readJSON('package.json'),
+        exec: {
+            startRedis: {
+                cmd: 'redis-2.8\\msvs\\x64\\Release\\redis-server.exe'
+            },
+            stopRedis: {
+                cmd: 'taskkill /F /IM redis-server.exe'
+            }
+        },
         concurrent: {
             dev: {
-                tasks: ['nodemon',  'watch'],
+                tasks: ['exec:startRedis', 'nodemon',  'watch'],
                 options: {
                     logConcurrentOutput: true
                 }
@@ -75,5 +86,7 @@ module.exports = function(grunt) {
         }
     });
 
-    grunt.registerTask('default', ['concurrent:dev'])
+    grunt.registerTask('default', ['concurrent:dev']);
+    grunt.registerTask('start', 'Start the redis server', ['exec:startRedis']);
+    grunt.registerTask('stop', 'Stop the redis server', ['exec:stopRedis']);
 };
