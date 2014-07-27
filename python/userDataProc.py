@@ -83,7 +83,7 @@ for thread in selector('.thread').eq(0).items():
     fb['chats'][str(list(userIDs))] = tempChat
 
 #store this structure for later access    
-with open('messages.json', 'w') as fl:
+with open("./users/"+outputDirs['user']+'messages.json', 'w') as fl:
     dump(fb, fl)
 
 print "finished creating JSON chat structure"
