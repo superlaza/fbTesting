@@ -126,43 +126,6 @@ app.post('/upload', function(req, res){
         }
     }
 
-/*
-
-        function (err) {
-            if (err) {
-                console.error(err.toString().red);
-            }
-            else {
-                console.log('Successfully created directory for user ' + userPath + '!');
-
-                mkdirp(userPath + '/uploads', function (err) {
-                    if (err) console.error(err.toString().red);
-                    else console.log('Successfully created directory for user ' + userPath + '/uploads' + '!');
-                });
-                mkdirp(userPath + '/data', function (err) {
-                    if (err) console.error(err.toString().red);
-                    else console.log('Successfully created directory for user ' + userPath + '/data' + '!');
-                });
-            }
-        });
-    }
-    else{
-        if (!fs.existsSync(userPath + '/uploads')){
-            mkdirp(userPath + '/uploads', function (err) {
-                if (err) console.error(err.toString().red);
-                else console.log('Successfully created directory for user ' + userPath + '/uploads' + '!');
-            });
-        }
-
-        if (!fs.existsSync(userPath + '/data')){
-            mkdirp(userPath + '/data', function (err) {
-                if (err) console.error(err.toString().red);
-                else console.log('Successfully created directory for user ' + userPath + '/data' + '!');
-            });
-        }
-
-    }
-*/
     //<editor-fold desc="Formidable Initialization and Event Registration">
     //TODO: ALL POSSIBLE FORM STATE EVOLUTIONS SHOULD BE ACCOUNTED FOR
     // parse a file upload
