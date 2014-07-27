@@ -20,6 +20,7 @@
     <orderEntry type="library" name="socket.io-DefinitelyTyped" level="application" />
     <orderEntry type="library" name="socket.io-client-DefinitelyTyped" level="application" />
     <orderEntry type="library" name="fbTesting node_modules" level="project" />
+    <orderEntry type="library" name="fbTesting node_modules" level="project" />
   </component>
 </module>
 

@@ -3,217 +3,351 @@
 <html lang="en">
 
 <head>
-    <meta charset="utf-8">
-    <title>Conversation Upload Form</title>
-    <link rel="stylesheet" type="text/css" href="css/main.css">
-    <link rel="stylesheet" href="./css/animate.css">
-    <link rel="stylesheet" href="./css/dropzone.css">
-    <script type="application/javascript" src="./js/vendor/jquery-1.11.1.js"></script>
-    <script type="application/javascript" src="./js/vendor/dropzone.js"></script>
-    <script type="application/javascript" src="./js/vendor/d3.js"></script>
-    <!--I don't really like pulling from the CDN, but local repo doesn't work-->
-    <!--<script type="application/javascript" src="./bower_components/socket.io/lib/socket.js"></script>-->
-    <!--<script src="https://cdn.socket.io/socket.io-1.0.6.js"></script>-->
-    <script type="application/javascript" src="node_modules/socket.io/node_modules/socket.io-client/socket.io.js"></script>
+<meta charset="utf-8">
+<title>Conversation Upload Form</title>
 
-    <script type="text/javascript">
-        //<editor-fold desc="DROPZONE.JS">
-        //name of options attribute is the camelized version of the form element ID
-        $(function(){//on DOM ready
-            Dropzone.options.uploadId ={
-                paramName: "file",
-                dictDefaultMessage: "",
-                init: function() {
-                    this.on('dragover', function(evt){
-                        $('#uploadId').addClass('animated pulse');
-                    });
-                    this.on('dragleave', function(evt){
-                        $('#uploadId').removeClass('animated pulse');
-                    });
-                    this.on('drop', function(evt){
-                        var uploadBox = $('#uploadId');
-                        uploadBox.removeClass('animated pulse')
-                                .addClass('animated rubberBand');
-                        setTimeout(function() {
-                            uploadBox.addClass('animated fadeOut');
-                            setTimeout(function () {
-                                uploadBox.remove();
-                                $('#uploadImg').css({
-                                    "display": "block",
-                                    "margin-left": "37.5%"
-                                });
-                                setTimeout(function(){
-                                    var socket = io('http://localhost');
-                                    socket.on('server', function (data) {
-                                        console.log(data);
-                                        d3init(data);
-                                    });
-                                },6000);
-                            }, 1000);
-                        }, 500);
-                    });
-                }//end init
-            };//end options
-        });//end ondocready
-        //</editor-fold>
-        /*
-        //<editor-fold desc="SOCKET.IO.JS">
-        $(function(){
-            $('#gobtn').on("click", function(){
-                var socket = io('http://localhost');
-                socket.on('server', function (data) {
-                    console.log(JSON.parse(data).data);
-                    var dataArray = JSON.parse(data).data;
-                    //d3init(dataArray);
-                    otherd3init();
-                    //testing
-                    //socket.emit('client', { my: 'data' });
-                });
+<link rel="stylesheet" type="text/css" href="public/css/main.css">
+<link rel="stylesheet" href="public/css/animate.css">
+<link rel="stylesheet" href="public/css/dropzone.css">
+<link rel="stylesheet" href="public/js/vendor/jquery-ui-1.11.0/jquery-ui.css">
+
+<script type="application/javascript" src="public/js/vendor/jquery-1.11.1.js"></script>
+<script type="application/javascript" src="public/js/vendor/dropzone.js"></script>
+<script type="application/javascript" src="public/js/vendor/d3.js"></script>
+<script type="application/javascript" src="public/js/vendor/RadarChart.js"></script>
+<script type="application/javascript" src="./node_modules/socket.io/node_modules/socket.io-client/socket.io.js"></script>
+
+<script src="public/js/vendor/jquery-ui-1.11.0/jquery-ui.min.js"></script>
+
+<script type="text/javascript">
+
+//      <editor-fold desc="Client-Side Form Validation">
+//file should be validated on client side AND server side
+//client validation is necessary to let user know that the file is invalid before the entire file is uploaded
+function validateForm(){
+    console.log('validation called');
+    return true;//form is allowable
+}
+//      </editor-fold>
+
+//<editor-fold desc="SOCKET.IO.JS">
+//Establish socket connection immediately
+var socket = io('/data');//connect to custom namespace
+socket.on('connect', function(data) {
+    socket.emit('customSocket', { customId: "dataSocket" });//send custom ID
+});
+socket.on('bar', function (data) {
+    //console.log(data);
+
+    //TODO: Modularize this code
+    var tabs = document.getElementById('tabs');
+    var ul = tabs.childNodes[1];
+    var temp = document.createElement('div');
+    temp.id = "fragment-1";
+    temp.innerHTML = '<div id="bar"></div>';
+    tabs.appendChild(temp);
+    temp = document.createElement('li');
+    temp.innerHTML = '<a href="#fragment-1">Words Over Time</a>';
+    ul.appendChild(temp);
+    $('#tabs').tabs('refresh');
+
+    bar_init(data);
+});
+socket.on('radar', function(data) {
+    //console.log(data);
+    var tabs = document.getElementById('tabs');
+    var ul = tabs.childNodes[1];
+    var temp = document.createElement('div');
+    temp.id = "fragment-2";
+    temp.innerHTML = '<div id="radar"><div id="chart"></div></div>';
+    tabs.appendChild(temp);
+    temp = document.createElement('li');
+    temp.innerHTML = '<a href="#fragment-2">Words by Hour</a>';
+    ul.appendChild(temp);
+    $('#tabs').tabs('refresh');
+
+    radar_init(data);
+});
+//</editor-fold>
+
+//<editor-fold desc="DROPZONE.JS">
+//name of options attribute is the camelized version of the form element ID
+$(function(){//on DOM ready
+    Dropzone.options.uploadId ={
+        paramName: "file",
+        dictDefaultMessage: "",
+        init: function() {
+            this.on('dragover', function(evt){
+                $('#uploadId').addClass('animated pulse');
             });
-        });
-        //</editor-fold>
-        */
-        //<editor-fold desc="D3.JS">
-        function d3init(dataset) {
-            //dataset obtained using socket.io above
-            //need failure handling
-            var w = 4000;
-            var h = 500;
-            var margin = {top: 40, right: 20, bottom: 30, left: 40},
-                    width = 960 - margin.left - margin.right,
-                    height = 500 - margin.top - margin.bottom;
-            var maxVal = 100;
-            var sortOrder = false;
+            this.on('dragleave', function(evt){
+                $('#uploadId').removeClass('animated pulse');
+            });
+            this.on('drop', function(evt){
+                //console.log($('#testing').change(validateForm()));//client-side form validation
+                $('#tabs').show();
+                var uploadBox = $('#uploadId');
+                uploadBox.removeClass('animated pulse')
+                        .addClass('animated rubberBand');
+                setTimeout(function() {
+                    uploadBox.addClass('animated fadeOut');
+                    setTimeout(function () {
+                        uploadBox.remove();
+                        var uploadImg = $('#uploadImg');
+                        uploadImg.css({
+                            "display": "block",
+                            "margin-left": String((uploadImg.parent().width()-uploadImg.width())/2) +"px"
+                        });
+                    }, 1000);
+                }, 500);
+            });
+        }//end init
+    };//end options
+});//end ondocready
+//</editor-fold>
 
-            var key = function (d) {
-                return d.date;
-            };
+//<editor-fold desc="D3 Bar">
+function bar_init(dataset) {
+    //dataset obtained using socket.io above
+    //need failure handling
+    //70% of width
+    var w = 0.7*($(document).width());
+    var h = 500;
+    var margin = {top: 40, right: 20, bottom: 30, left: 40},
+            width = 960 - margin.left - margin.right,
+            height = 500 - margin.top - margin.bottom;
+    var maxVal = 100;
+    var sortOrder = false;
 
-            console.log(dataset.length);
+    var key = function (d) {
+        return d.date;
+    };
 
-            var xScale = d3.scale.ordinal()
-                    .domain(d3.range(dataset.length))
-                    .rangeRoundBands([0, w], 0.0);
-            var yScale = d3.scale.linear()
-                    .domain([0, d3.max(dataset, function (d) {
-                        return d.wordcount;
-                    })])
-                    .range([0, h]);
+    //console.log(dataset.length);
 
-            var svg = d3.select("body")
-                    .append("svg")
-                    .attr("width", w)
-                    .attr("height", h)
+    var xScale = d3.scale.ordinal()
+            .domain(d3.range(dataset.length))
+            .rangeRoundBands([0, w], 0.0);
+    var yScale = d3.scale.linear()
+            .domain([0, d3.max(dataset, function (d) {
+                return d.wordcount;
+            })])
+            .range([0, h]);
+
+    var svg = d3.select("#bar")
+            .append("svg")
+            .attr("width", w)
+            .attr("height", h)
 //                    .attr("width", width + margin.left + margin.right)
 //                    .attr("height", height + margin.top + margin.bottom)
-                    .attr("class", "animated fadeIn");
+            .attr("class", "animated fadeIn")
+            .style("margin", "auto")
+            .style("display", "block");
 
-            svg.selectAll("rect")
-                    .data(dataset, key)
-                    .enter()
-                    .append("rect")
-                    .attr("x", function (d, i) {
-                        return xScale(i);
-                    })
-                    .attr("y", function (d) {
-                        return h - yScale(d.wordcount);
-                    })
-                    .attr("width", xScale.rangeBand())
-                    .attr("height", function (d) {
-                        return yScale(d.wordcount);
-                    })
-                    .attr("fill", function (d) {
-                        return "rgb(0, 0, " + (d.wordcount * 5) + ")";
-                    })
-                    .on("mouseover", function (d) {
-                        d3.select(this)
-                                .attr("fill", "orange");
+    svg.selectAll("rect")
+            .data(dataset, key)
+            .enter()
+            .append("rect")
+            .attr("x", function (d, i) {
+                return xScale(i);
+            })
+            .attr("y", function (d) {
+                return h - yScale(d.wordcount);
+            })
+            .attr("width", xScale.rangeBand())
+            .attr("height", function (d) {
+                return yScale(d.wordcount);
+            })
+            .attr("fill", function (d) {
+                return "rgb(0, 0, " + (d.wordcount * 5) + ")";
+            })
+            .on("mouseover", function (d) {
+                d3.select(this)
+                        .attr("fill", "orange");
 
-                        //update tooltip value
-                        d3.select("#tooltip #date")
-                                .text(d.date);
-                        d3.select("#tooltip #wordcount")
-                                .text(d.wordcount);
+                //update tooltip value
+                d3.select("#tooltip #date")
+                        .text(d.date);
+                d3.select("#tooltip #wordcount")
+                        .text(d.wordcount);
 
-                        //Get this bar's x/y values, then augment for the tooltip
-                        var divWidth = parseFloat(d3.select("#tooltip").style("width"));
-                        var xPosition = parseFloat(d3.select(this).attr("x")) - divWidth - 10;
-                        var yPosition = parseFloat(d3.select(this).attr("y")) / 2 + h / 2;
+                //Get this bar's x/y values, then augment for the tooltip
+                var divWidth = parseFloat(d3.select("#tooltip").style("width"));
+                var xPosition = parseFloat(d3.select(this).attr("x")) - divWidth - 10;
+                var yPosition = parseFloat(d3.select(this).attr("y")) / 2 + h / 2;
 
-                        //Update the tooltip position
-                        d3.select("#tooltip")
-                                .style("left", xPosition + "40px")
-                                .style("top", yPosition + "px");
-
-
-                        //Show the tooltip
-                        d3.select("#tooltip").classed("hidden", false);
-                    })
-                    .on("mouseout", function (d) {
-                        d3.select(this)
-                                .transition()
-                                .duration(250)
-                                .attr("fill", "rgb(0, 0, " + (d.wordcount * 2) + ")");
-
-                        d3.select("#tooltip").classed("hidden", true);
-
-                    });
-
-            d3.select("#btnSort")
-                    .on("click", function () {
-                        sortBars();
-                    });
+                //Update the tooltip position
+                d3.select("#tooltip")
+                        .style("left", xPosition + "40px")
+                        .style("top", yPosition + "px");
 
 
-            var sortBars = function () {
-                svg.selectAll("rect")
-                        .sort(function (a, b) {
-                            if (sortOrder) {
-                                return d3.ascending(a.wordcount, b.wordcount);
-                            } else {
-                                return d3.descending(a.wordcount, b.wordcount);
-                            }
-                        })
+                //Show the tooltip
+                d3.select("#tooltip").classed("hidden", false);
+            })
+            .on("mouseout", function (d) {
+                d3.select(this)
                         .transition()
-                        .delay(function (d, i) {
-                            return i * 2;
-                        })
-                        .duration(1000)
-                        .attr("x", function (d, i) {
-                            return xScale(i);
-                        });
+                        .duration(250)
+                        .attr("fill", "rgb(0, 0, " + (d.wordcount * 2) + ")");
 
-                sortOrder = !sortOrder;
-            };
+                d3.select("#tooltip").classed("hidden", true);
 
-        }
-        //</editor-fold>
-    </script>
+            });
+
+
+    d3.select("#btnSort")
+            .on("click", function () {
+                sortBars();
+            });
+
+    var sortBars = function () {
+        svg.selectAll("rect")
+                .sort(function (a, b) {
+                    if (sortOrder) {
+                        return d3.ascending(a.wordcount, b.wordcount);
+                    } else {
+                        return d3.descending(a.wordcount, b.wordcount);
+                    }
+                })
+                .transition()
+                .delay(function (d, i) {
+                    return i * 2;
+                })
+                .duration(1000)
+                .attr("x", function (d, i) {
+                    return xScale(i);
+                });
+
+        sortOrder = !sortOrder;
+    };
+
+}
+//</editor-fold>
+
+//<editor-fold desc="D3 Radar">
+function radar_init(dataset) {
+    var w = 500, h = 500;
+
+    var colorscale = d3.scale.category10();
+
+    //Legend titles, different users can be superimposed
+    //just add them to array
+    var LegendOptions = ['friend1'];
+
+    //Data
+    var d = [dataset];
+
+    //Options for the Radar chart, other than default
+    var mycfg = {
+        w: w,
+        h: h,
+        maxValue: 0.6,
+        levels: 6,
+        ExtraWidthX: 300
+    };
+
+    //Call function to draw the Radar chart
+    //Will expect that data is in %'s
+    RadarChart.draw("#chart", d, mycfg);
+
+    ////////////////////////////////////////////
+    /////////// Initiate legend ////////////////
+    ////////////////////////////////////////////
+
+    var svg = d3.select('#radar')
+            .attr("class", "animated fadeIn")
+            .selectAll('svg')
+            .append('svg')
+            .attr("width", w + 300)
+            .attr("height", h);
+
+    //Create the title for the legend
+    var text = svg.append("text")
+            .attr("class", "title")
+            .attr('transform', 'translate(90,0)')
+            .attr("x", w - 70)
+            .attr("y", 10)
+            .attr("font-size", "12px")
+            .attr("fill", "#404040")
+            .text("The number of words spoken during a specific hour");
+
+    //Initiate Legend
+    var legend = svg.append("g")
+            .attr("class", "legend")
+            .attr("height", 100)
+            .attr("width", 200)
+            .attr('transform', 'translate(90,20)');
+    //Create colour squares
+    legend.selectAll('rect')
+            .data(LegendOptions)
+            .enter()
+            .append("rect")
+            .attr("x", w - 65)
+            .attr("y", function (d, i) {
+                return i * 20;
+            })
+            .attr("width", 10)
+            .attr("height", 10)
+            .style("fill", function (d, i) {
+                return colorscale(i);
+            });
+
+    //Create text next to squares
+    legend.selectAll('text')
+            .data(LegendOptions)
+            .enter()
+            .append("text")
+            .attr("x", w - 52)
+            .attr("y", function (d, i) {
+                return i * 20 + 9;
+            })
+            .attr("font-size", "11px")
+            .attr("fill", "#737373")
+            .text(function (d) {
+                return d;
+            });
+}
+//</editor-fold>
+
+//<editor-fold desc="jQuery Tabs">
+$(function(){
+    $('#tabs').tabs().hide();
+});
+//</editor-fold>
+</script>
 
 
 </head>
 
 <body>
-    <div id="intro">
-        Analyze Your Facebook Chat Interactions!
-    </div>
+<div id="intro">
+    Analyze Your Facebook Chat Interactions!
+</div>
 <!--currently server detects post request to handle form action-->
-    <div id="uploadCont">
-        <img id="uploadImg" class="upload" src="img\fb_upload.png">
-        <form action="nodejs/app.js"
-              class="dropzone upload"
-              id="uploadId">
-            <!--<div id="dropZoneText">Drop your shit here, please.</div>-->
-        </form>
-    </div>
+<div id="uploadCont">
+    <img id="uploadImg" class="upload" src="public/img/fb_upload.png">
+    <!--TODO: action is a temporary key to look for in node app-->
+    <form action="upload"
+          class="dropzone upload"
+          id="uploadId">
+        <!--<div id="dropZoneText">Drop your shit here, please.</div>-->
+    </form>
+</div>
 
-    <div id="tooltip" class="hidden">
-        <p><strong>This day!</strong></p>
-        <p><span id="date">today</span></p>
-        <p><span id="wordcount">1</span> word's exchanged</p>
-    </div>
-    <!--<button id="btnSort">Sort</button>-->
-    <p></p>
+<div id="tabs">
+    <ul>
+    </ul>
+</div>
+
+
+
+<div id="tooltip" class="hidden">
+    <p><strong>This day!</strong></p>
+    <p><span id="date">today</span></p>
+    <p><span id="wordcount">1</span> word's exchanged</p>
+</div>
+<p></p>
 </body>
 
 </html>
