@@ -93,22 +93,77 @@ app.post('/upload', function(req, res){
 
     var userPath = "./users/"+req.sessionID.toString();
     //make directory for specific user issuing request
-    if (!fs.existsSync(userPath)) {
-        mkdirp(userPath, function (err) {
-            if (err) console.error(err.toString().red);
-            else console.log('Successfully created directory for user '+userPath+'!');
-
-            mkdirp(userPath+'/uploads', function (err) {
-                if (err) console.error(err.toString().red);
-                else console.log('Successfully created directory for user '+userPath+'/uploads'+'!');
-            });
-            mkdirp(userPath+'/data', function (err) {
-                if (err) console.error(err.toString().red);
-                else console.log('Successfully created directory for user '+userPath+'/data'+'!');
-            });
-        });
+    //synchronous because this must happen before anything that follows
+    if (!fs.existsSync(userPath)) {//if dir isn't there, create
+        try {
+            fs.mkdirSync(userPath, 0755);
+            fs.mkdirSync(userPath + '/uploads', 0755);
+            fs.mkdirSync(userPath + '/data', 0755);
+        }
+        catch (error) {
+            console.log("Failed to make user directories...".red);
+            console.log(error.toString().red);
+        }
     }
 
+    else{//if dir exists, make sure it's subdirs are there
+        if (!fs.existsSync(userPath + '/uploads')){
+            try {
+                fs.mkdirSync(userPath + '/uploads', 0755);
+            }
+            catch (error) {
+                console.log("Failed to make user 'upload' directory...".red);
+                console.log(error.toString().red);
+            }
+        }
+        if (!fs.existsSync(userPath + '/data')){
+            try {
+                fs.mkdirSync(userPath + '/data', 0755);
+            }
+            catch (error) {
+                console.log("Failed to make user 'data' directory...".red);
+                console.log(error.toString().red);
+            }
+        }
+    }
+
+/*
+
+        function (err) {
+            if (err) {
+                console.error(err.toString().red);
+            }
+            else {
+                console.log('Successfully created directory for user ' + userPath + '!');
+
+                mkdirp(userPath + '/uploads', function (err) {
+                    if (err) console.error(err.toString().red);
+                    else console.log('Successfully created directory for user ' + userPath + '/uploads' + '!');
+                });
+                mkdirp(userPath + '/data', function (err) {
+                    if (err) console.error(err.toString().red);
+                    else console.log('Successfully created directory for user ' + userPath + '/data' + '!');
+                });
+            }
+        });
+    }
+    else{
+        if (!fs.existsSync(userPath + '/uploads')){
+            mkdirp(userPath + '/uploads', function (err) {
+                if (err) console.error(err.toString().red);
+                else console.log('Successfully created directory for user ' + userPath + '/uploads' + '!');
+            });
+        }
+
+        if (!fs.existsSync(userPath + '/data')){
+            mkdirp(userPath + '/data', function (err) {
+                if (err) console.error(err.toString().red);
+                else console.log('Successfully created directory for user ' + userPath + '/data' + '!');
+            });
+        }
+
+    }
+*/
     //<editor-fold desc="Formidable Initialization and Event Registration">
     //TODO: ALL POSSIBLE FORM STATE EVOLUTIONS SHOULD BE ACCOUNTED FOR
     // parse a file upload
@@ -125,7 +180,6 @@ app.post('/upload', function(req, res){
         //need to specify file path at moment of file discovery
         //otherwise it will be ignored when the writestream is created
         file.path = userPath+'/uploads/'+file.name;
-        console.log(file.path);
     });
 
     //register this callback to progress event to display progress
