@@ -1,7 +1,10 @@
 # Created by .gitignore support plugin (hsz.mobi)
 
-#redundancy to ensure it gets ignored
+#ignore ide config
 .idea/
+
+#ignore everything contained within user dir
+users/**
 
 .rebooted
 
