@@ -8,4 +8,4 @@ users/**
 
 .rebooted
 
-Gruntfile.js
+grunt-config.json

@@ -27,11 +27,10 @@ months = {'January': 1,
     'December': 12}
 
 selector = pq(filename="messages.htm")
-#selector = pq(filename = "messages.htm")#for debugging
 
 fb = {'user': 'David', 'chats': {}}
 
-for thread in selector('.thread').eq(0).items():
+for thread in selector('.thread').items():
 
     tempChat = {'messages': []}
     userIDs = set()
@@ -202,8 +201,8 @@ def word_histogram():
         histo_string += token + ':' + fd[token] + '\n'
         #print token, ':', fd[token]
 
-#timeline(fb['chats'][fb['chats'].keys()[0]]['messages'])
-#hour_histogram(fb['chats'][fb['chats'].keys()[0]]['messages'])
+# timeline(fb['chats'][fb['chats'].keys()[0]]['messages'])
+# hour_histogram(fb['chats'][fb['chats'].keys()[0]]['messages'])
 
 find_links(fb['chats'][fb['chats'].keys()[0]]['messages'])
 
