@@ -13,7 +13,10 @@ module.exports = function(grunt) {
         pkg: grunt.file.readJSON('package.json'),
         exec: {
             startRedis: {
-                cmd: 'redis-2.8\\msvs\\x64\\Release\\redis-server.exe'
+                options:{
+                    cwd: __dirname + '\\redis-2.8\\bin\\release\\redis-2.8.12'
+                },
+                cmd: 'redis-server.exe'
             },
             stopRedis: {
                 cmd: 'taskkill /F /IM redis-server.exe'
@@ -21,7 +24,7 @@ module.exports = function(grunt) {
         },
         concurrent: {
             dev: {
-                tasks: ['exec:startRedis', 'nodemon',  'watch'],
+                tasks: [ 'exec:startRedis', 'nodemon',  'watch'],
                 options: {
                     logConcurrentOutput: true
                 }
