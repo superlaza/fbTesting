@@ -3,6 +3,7 @@ from pyquery import PyQuery as pq
 from json import dump
 from json import loads
 from datetime import datetime
+import sys
 
 import argparse
 
@@ -14,7 +15,8 @@ args = parser.parse_args()
 filepath = args.filepath
 outputDirs = loads(args.outputDirs)
 if not (filepath.endswith('.html') or filepath.endswith('.htm')):
-    print "Error: incorrect file type. Received "+args.filepath.split('.')[-1]+', need .htm or html'
+    sys.stdout.write("Error: incorrect file type. Received "+args.filepath.split('.')[-1]+', need .htm or html')
+    sys.stdout.flush()
     exit(1)
 
 #global vars
@@ -38,6 +40,9 @@ selector = pq(filename=filepath)
 
 fb = {'user': 'David', 'chats': {}}
 
+#make the following a function, localize these vars
+fb_size = len(selector('.thread'))
+fb_count = 0
 for thread in selector('.thread').items():
 
     tempChat = {'messages': []}
@@ -82,11 +87,16 @@ for thread in selector('.thread').items():
 
     fb['chats'][str(list(userIDs))] = tempChat
 
+    fb_count += 1
+    sys.stdout.write("-extracing data from html...%d%%   \r" % (100*fb_count/fb_size))
+    sys.stdout.flush()
+
 #store this structure for later access    
 with open("./users/"+outputDirs['user']+'/messages.json', 'w') as fl:
     dump(fb, fl)
 
-print "finished creating JSON chat structure"
+sys.stdout.write("finished creating JSON chat structure")
+sys.stdout.flush()
 
 
 def wordcount(messages):
@@ -117,7 +127,10 @@ def wordcount(messages):
 
 
 def timeline(messages):
-    print "Starting analysis for time line plot..."
+    count = 0
+    size = len(messages)
+    sys.stdout.write("Starting analysis for time line plot...")
+    sys.stdout.flush()
     date_dict = []
     msgs = iter(messages)
     try:
@@ -134,17 +147,26 @@ def timeline(messages):
                 temp = datetime.strptime(m['date'], '%Y-%m-%d %H:%M:%S')
 
             date_dict.append({"date": str(_date), "wordcount": word_count})
-    except StopIteration:
-        print("All messages have been analyzed.")
 
-    with open("./users/"+outputDirs['user']+outputDirs['dirs']['wordcount'], 'w+') as f:
+            count += 1
+            sys.stdout.write("-timeline progress: %d%%   \r" % (100*count/size))
+            sys.stdout.flush()
+
+    except StopIteration:
+        sys.stdout.write("All messages have been analyzed.")
+        sys.stdout.flush()
+
+    with open("./users/"+outputDirs['user']+outputDirs['dirs']['timeline'], 'w+') as f:
         dump(date_dict, fp=f)
 
-    print "timeline"
+    sys.stdout.write("timeline")
+    sys.stdout.flush()
 
 
 #need to -5hrs from GMT
 def hour_histogram(messages):
+    count = 0
+    size = len(messages)
     hour_dict = {}
     for m in messages:
         _date = datetime.strptime(m['date'], '%Y-%m-%d %H:%M:%S')
@@ -152,6 +174,10 @@ def hour_histogram(messages):
             hour_dict[_date.hour] = 1
         else:
             hour_dict[_date.hour] += 1
+
+        count += 1
+        sys.stdout.write("-hour histograms progress: %d%%   \r" % (100*count/size))
+        sys.stdout.flush()
 
     hour_arr = []
     #d3 radar plugin currently prints in reverse
@@ -165,7 +191,8 @@ def hour_histogram(messages):
     with open("./users/"+outputDirs['user']+outputDirs['dirs']['hour_histogram'], 'w+') as f:
         dump(hour_arr, fp=f)
 
-    print "hour_histogram"
+    sys.stdout.write("hour_histogram")
+    sys.stdout.flush()
 
 
 def word_histogram():
