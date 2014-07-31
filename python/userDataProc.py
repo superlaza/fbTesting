@@ -146,11 +146,11 @@ def timeline(messages):
                 m = msgs.next()
                 temp = datetime.strptime(m['date'], '%Y-%m-%d %H:%M:%S')
 
-            date_dict.append({"date": str(_date), "wordcount": word_count})
+                count += 1
+                sys.stdout.write("-timeline progress: %d%%   \r" % (100*count/size))
+                sys.stdout.flush()
 
-            count += 1
-            sys.stdout.write("-timeline progress: %d%%   \r" % (100*count/size))
-            sys.stdout.flush()
+            date_dict.append({"date": str(_date), "wordcount": word_count})
 
     except StopIteration:
         sys.stdout.write("All messages have been analyzed.")
@@ -165,7 +165,7 @@ def timeline(messages):
 
 #need to -5hrs from GMT
 def hour_histogram(messages):
-    count = 0
+    count = 1
     size = len(messages)
     hour_dict = {}
     for m in messages:
