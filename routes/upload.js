@@ -1,3 +1,4 @@
+var fs = require('fs');
 module.exports = function(userData, nsp, sockets){
     var router = require('express').Router();
     var colors = require('colors');
