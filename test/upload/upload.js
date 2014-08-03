@@ -1,75 +1,95 @@
-/**
- * Created by David on 8/1/2014.
- */
-var express = require('express');
-
-//var key = "Hash Browns";
-//var cookieparser = require('cookie-parser')(key);
-//var socket = require('socket.io');
-//var io_client = require('../../node_modules/socket.io/node_modules/socket.io-client/index.js');
 var should = require('should');
-var request = require('supertest');
-//var upload = require('../../routes/upload.js');
+var supertest = require('supertest');
+var app = require('C:\\Projects\\fbTesting\\app.js');
+var fs = require('fs');
+var exec = require('child_process').spawn;
+var rmdir = require('rimraf');
 
-var sockets = {};
-var userData = {};
+var cookieParser = require('cookie-parser');
 
-var app = express();
-var server = app.listen();
 
-var supertest = request(app);
-//app.listen(8001);
+var request = supertest(app.app);
 
-//var port = 8001;
-//var server = app.listen(port, console.log('Listening on port '+port+'...'));
-//
-//var io = socket.listen(server);
-//var nsp = require('../../routes/modules/socket.io.js')({
-//    "server": server, "sockets": sockets, "userData": userData
-//});
-
-app.post("/upload", function(req, res) {
-    res.send(200);
-});
-
-//servers send error based on missing content length, sometimes
-describe("uploading of doc", function (){
-
-    it("should see post", function(done){
-        request(server)
-            .post('/upload')
-            .set({
-                'Content-Type': 'text/html',
-                'Content-Length': '12341248'
-            })
-            .send('{"name":"tj","pet":"tobi"}')
-//                        .attach('messages', 'C:/Projects/fbTesting/test/upload/messages.htm')
-            .expect(200)
-            .end(function(err, res){
-                should.not.exist(err);
-                console.log(err);
-                console.log(res);
-            });
-
-//        headers: {
-//            'Content-Type': 'application/json; charset=utf-8',
-//                'Content-Length': Buffer.byteLength(post_data),
-//                'Accept': 'application/json',
-//                'Accept-Encoding': 'gzip,deflate,sdch',
-//                'Accept-Language': 'en-US,en;q=0.8'
-//        }
+describe('upload', function() {
+    var html;
+    var pythonChild;
+    before(function(done) {
+        var html = fs.readFileSync('test/upload/messages.htm', 'utf-8');
+        var pythonChild = exec('C:\\Projects\\fbTesting\\redis-2.8\\bin\\release\\redis-2.8.12\\redis-server.exe');
+        done();
     });
 
+    after(function(done){
+//        var pythonChild = exec('taskkill /F /IM redis-server.exe');
+        console.log(('C:/Projects/fbTesting/users/'+app.userID));
+        rmdir('users/'+app.userID, function(err){
+            throw err;
+            console.log('testing');
+            console.log(err);
+        });
+        done()
+    });
+
+    var agent1 = supertest.agent();
+    var agent2 = supertest.agent();
+    var agent3 = supertest.agent(app.app);
+
+//    it('should gain a session on POST', function(done) {
+//        agent3
+//            .post('/upload')
+//            .end(function(err, res) {
+//                should.not.exist(err);
+//                res.should.have.status(200);
+//                should.not.exist(res.headers['set-cookie']);
+//                res.text.should.include('dashboard');
+//                done();
+//            });
+//    });
+
+    it('should receive upload', function(done) {
+        agent3
+            .post('/upload')
+            .attach('avatar', 'test/upload/messages.htm', 'messages.htm')
+            .end(function (err, res) {
+                should.not.exist(err);
+                res.status.should.equal(200); //response indicates success
+                should.exist(res.headers['set-cookie']);
+                console.log(app.userID);
+                done();//finish this test
+            });
+
+//        var req = request.post('/upload');
+//        req.part()
+//            .set('Content-Type', 'text/html')
+//            .set('Content-Disposition', 'attachment; filename="myimage.png"')
+//            .write('some image data')
+//        .end(function (err, res) {
+//            should.not.exist(err);
+//            res.status.should.equal(200); //response indicates success
+//            done();//finish this test
+
+//        var t = request
+//            .post('/upload')
+//            .type('html')
+////            .attach('test', 'test/upload/messages2.html');
+//            .send(html);
+//        t.end(function (err, res) {
+//            should.not.exist(err);
+//            res.status.should.equal(200); //response indicates success
+//            done();//finish this test
+//
+//        });
+    });
+
+    rmdir('C:/Projects/fbTesting/users/'+app.userID, function(err){
+        throw err;
+        console.log('testing');
+        console.log(err);
+    });
 });
 
-//used when an assertion is called from nested scope, not it(), so only this scope can capture what would be uncaught exceptions from here
-//because of the asynchronous nature of some functions, calling them within it could cause execution to fall outside of it...
-//meaning it can no longer catch the exceptions that take place within
-function check( done, f ) {
-    try {
-        f();
-        done();// success: call done with no parameter to indicate that it() is done()
-    } catch(e) {
-        done(e);// failure: call done with an error Object to indicate that it() failed
-    }
-}
+rmdir('C:/Projects/fbTesting/users/'+app.userID, function(err){
+    throw err;
+    console.log('testing');
+    console.log(err);
+});

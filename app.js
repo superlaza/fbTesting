@@ -40,7 +40,9 @@ app.use('/', require('./routes/index.js')(userData));
 app.use('/upload', require('./routes/upload.js')(userData, nsp, sockets));
 
 function genuuid() {
-    return (((1 + Math.random()) * 0x10000) | 0).toString(16).substring(1);
+    var userID = (((1 + Math.random()) * 0x10000) | 0).toString(16).substring(1);
+    module.exports.userID = userID;
+    return userID;
 }
 
-
+module.exports.app = app;

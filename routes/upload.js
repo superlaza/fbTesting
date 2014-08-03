@@ -18,7 +18,6 @@ module.exports = function(userData, nsp, sockets){
     //post handling
     router.post('/', function(req, res){
         var id = req.sessionID.toString();
-
         //make directory for specific user issuing request
         createUserDir("./users/"+id);
 
