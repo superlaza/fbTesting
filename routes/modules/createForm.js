@@ -17,6 +17,7 @@ module.exports = function parse(opts){
         //need to specify file path at moment of file discovery
         //otherwise it will be ignored when the writestream is created
         file.path = "./users/"+opts.sessionID+'/uploads/'+file.name;
+        opts["filename"] = file.name;
     });
 
     //register this callback to progress event to display progress

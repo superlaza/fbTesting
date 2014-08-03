@@ -25,7 +25,7 @@ describe('upload', function() {
         var exec = require('child_process').exec;
         exec('rmdir /s /q '+'users\\'+app.userID,function(err,out) {
             console.log(out); err && console.log(err);
-            done()
+            done();
         });
     });
     var agent3 = supertest.agent(app.app);
@@ -50,7 +50,6 @@ describe('upload', function() {
                 should.not.exist(err);
                 res.status.should.equal(200); //response indicates success
                 should.exist(res.headers['set-cookie']);
-                console.log(app.userID);
                 done();//finish this test
             });
 

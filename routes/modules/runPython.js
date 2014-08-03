@@ -7,9 +7,10 @@ var exec = require('child_process').spawn;
 //@param {string} opts.nsp the namespace created using socket.io
 //@param {string} opts.sockets the custom socket data structure used to store active sockets
 //@param {string} opts.userData the dict used to store pre-loaded data of users that are currently connected
+//@param {string} opts.filename the name of the file that was uploaded by the user
 module.exports = function runPython(opts){
     var path = "./users/"+opts.sessionID.toString();
-    var pythonChild = exec('python', ['python/userDataProc.py', path+'/uploads/messages.htm', JSON.stringify({"user":opts.sessionID.toString(), "dirs":opts.outputDirs})]);
+    var pythonChild = exec('python', ['python/userDataProc.py', path+'/uploads/'+opts.filename, JSON.stringify({"user":opts.sessionID.toString(), "dirs":opts.outputDirs})]);
 
     var datadict = {
         "hour_histogram": {
@@ -53,6 +54,7 @@ module.exports = function runPython(opts){
 
     pythonChild.stderr.on('data', function (data) {
         console.log(data.toString().red);
+        throw new Error(data);
     });
 
     pythonChild.on('close', function (code) {
