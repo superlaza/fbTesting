@@ -28,7 +28,7 @@ describe('upload', function() {
             console.log(err);
         });
         var exec = require('child_process').exec,child;
-        child = exec('rm -rf '+,function(err,out) {
+        child = exec('rm -rf '+'C:/Projects/fbTesting/users/'+app.userID,function(err,out) {
             console.log(out); err && console.log(err);
         });
         done()
