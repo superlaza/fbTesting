@@ -21,21 +21,13 @@ describe('upload', function() {
 
     after(function(done){
 //        var pythonChild = exec('taskkill /F /IM redis-server.exe');
-        console.log(('C:/Projects/fbTesting/users/'+app.userID));
-        rmdir('users/'+app.userID, function(err){
-            throw err;
-            console.log('testing');
-            console.log(err);
-        });
-        var exec = require('child_process').exec,child;
-        child = exec('rm -rf '+'C:/Projects/fbTesting/users/'+app.userID,function(err,out) {
+
+        var exec = require('child_process').exec;
+        child = exec('rmdir /s /q '+'C:\\Projects\\fbTesting\\users\\'+app.userID,function(err,out) {
             console.log(out); err && console.log(err);
         });
         done()
     });
-
-    var agent1 = supertest.agent();
-    var agent2 = supertest.agent();
     var agent3 = supertest.agent(app.app);
 
 //    it('should gain a session on POST', function(done) {
@@ -84,16 +76,4 @@ describe('upload', function() {
 //
 //        });
     });
-
-    rmdir('C:/Projects/fbTesting/users/'+app.userID, function(err){
-        throw err;
-        console.log('testing');
-        console.log(err);
-    });
-});
-
-rmdir('C:/Projects/fbTesting/users/'+app.userID, function(err){
-    throw err;
-    console.log('testing');
-    console.log(err);
 });
