@@ -23,10 +23,10 @@ describe('upload', function() {
 //        var pythonChild = exec('taskkill /F /IM redis-server.exe');
 
         var exec = require('child_process').exec;
-        child = exec('rmdir /s /q '+'C:\\Projects\\fbTesting\\users\\'+app.userID,function(err,out) {
+        exec('rmdir /s /q '+'users\\'+app.userID,function(err,out) {
             console.log(out); err && console.log(err);
+            done()
         });
-        done()
     });
     var agent3 = supertest.agent(app.app);
 
