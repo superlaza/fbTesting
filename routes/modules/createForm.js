@@ -27,13 +27,19 @@ module.exports = function parse(opts){
     });
 
     form.on('end', function(){
-        console.log("");
-        runPython(opts);
+        console.log("");//create gap in console
+        try {
+            runPython(opts);
+        }
+        catch(err){
+            //catch errors
+        }
     });
 
     form.on('error', function(err){
         console.log("File upload error: "+err);
         res.send("File upload error: "+err, 500);
+        throw err;
     });
 
 
