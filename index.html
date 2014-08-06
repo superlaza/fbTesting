@@ -20,7 +20,7 @@
 <script src="public/js/vendor/jquery-ui-1.11.0/jquery-ui.min.js"></script>
 
 <script type="text/javascript">
-//<editor-fold desc="LiveSearch">
+//<editor-fold desc="AJAX">
 //consider doing this with jquery
 function showResult(str) {
     if (str.length==0) {
@@ -39,12 +39,44 @@ function showResult(str) {
             var results = JSON.parse(xmlhttp.responseText);
             document.getElementById("livesearch").innerHTML = "";
             for(var i=0; i<results.length; ++i) {
-                document.getElementById("livesearch").innerHTML += '<button type="submit">'+results[i]+'</button>';
+                document.getElementById("livesearch").innerHTML += '<button type="button" onclick="getLinks(this.innerHTML)">'+results[i]+'</button>';
             }
             document.getElementById("livesearch").style.border="1px solid #A5ACB2";
         }
     };
     xmlhttp.open("GET","livesearch.js?q="+str,true);
+    xmlhttp.send();
+}
+
+function getLinks(button_text) {
+    if (button_text.length==0) {
+//        document.getElementById("link_list").innerHTML="";
+//        document.getElementById("link_list").style.border="0px";
+        console.log('error');
+        return;
+    }
+    if (window.XMLHttpRequest) {
+        // code for IE7+, Firefox, Chrome, Opera, Safari
+        xmlhttp=new XMLHttpRequest();
+    } else {  // code for IE6, IE5
+        xmlhttp=new ActiveXObject("Microsoft.XMLHTTP");
+    }
+    xmlhttp.onreadystatechange=function() {
+        if (xmlhttp.readyState==4 && xmlhttp.status==200) {
+            var results = JSON.parse(xmlhttp.responseText);
+            document.getElementById("link_list").innerHTML = "";
+            console.log(results);
+            for (var key in results) {
+                document.getElementById("link_list").innerHTML += "<h4>"+key+"</h4><ul>";
+                for (var link in results[key]) {
+                    document.getElementById("link_list").innerHTML += "<li><a href=\""+results[key][link]+"\">"+results[key][link]+"</a></li>";
+                }
+                document.getElementById("link_list").innerHTML += "</ul>";
+            }
+            document.getElementById("link_list").style.border="1px solid #A5ACB2";
+        }
+    };
+    xmlhttp.open("GET","links.js?q="+button_text,true);
     xmlhttp.send();
 }
 //</editor-fold>
@@ -365,6 +397,7 @@ $(function(){
 <form>
     <input type="text" size="30" onkeyup="showResult(this.value)">
     <div id="livesearch"></div>
+    <div id="link_list"></div>
 </form>
 <div id="tabs">
     <ul>

@@ -100,7 +100,6 @@ def extract():
 def find_links(messages):
     link_dict = {}
     link_dict_ordered = OrderedDict({})
-    test = {}
     for m in messages:
         links = re.findall('http[s]?://(?:[a-zA-Z]|[0-9]|[$-_@.&+]|[!*\(\),]|(?:%[0-9a-fA-F][0-9a-fA-F]))+', m['text'])
         if links:
