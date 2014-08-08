@@ -3,7 +3,6 @@ var url = require('url');
 var mime = require('mime');
 var fs = require('fs');
 var colors = require('colors');
-var url = require('url');
 
 module.exports = function(userData) {
 //<editor-fold desc="Express Routes">
@@ -37,27 +36,13 @@ module.exports = function(userData) {
 
     router.get('/links.js', function (req, res) {
         //TODOO: send the messages structure to frontend to put the computational burden on the browser, not the server
+        //the above would require rolling your own url parser (shouldn't be difficult at all, we only need host name really)
         var url_parts = url.parse(req.url, true);
         var query = url_parts.query;
         var messages = userData[req.sessionID]['chats'][query.q]['messages'];
-        var re = /https?:\/\/(www\.)?[-a-zA-Z0-9@:%._\+~#=]{2,256}\.[a-z]{2,6}\b([-a-zA-Z0-9@:%_\+.~#?&//=]*)/g;
-        var results;
-        var link_dict = {};
-        var host = "";
-        for (var msg in messages){
-            results = messages[msg]['text'].match(re);
-            for (var link in results){
-                host = url.parse(results[link]).host;
-                if(host in link_dict) {
-                    link_dict[host].push(results[link]);
-                }
-                else{
-                    link_dict[host] = [results[link]];
-                }
-            }
-        }
 
-        res.end(JSON.stringify(link_dict));
+
+        res.end(JSON.stringify(messages));
     });
 
 //any other request, find file and server
