@@ -3,6 +3,7 @@ from pyquery import PyQuery as pq
 from json import dump
 from json import loads
 from datetime import datetime
+import sys
 
 #for link parsing
 import re
@@ -30,6 +31,8 @@ selector = pq(filename="messages.htm")
 
 fb = {'user': 'David', 'chats': {}}
 
+size = len(selector('.thread'))
+count = 0
 for thread in selector('.thread').items():
 
     tempChat = {'messages': []}
@@ -73,6 +76,10 @@ for thread in selector('.thread').items():
         tempChat['messages'].append(temp_msg)
 
     fb['chats'][str(list(userIDs))] = tempChat
+
+    count += 1
+    sys.stdout.write("-python progress: %d%%   \r" % (100*count/size))
+    sys.stdout.flush()
 
 #store this structure for later access    
 with open("messages.json", 'w') as fl:
@@ -132,6 +139,7 @@ def timeline(messages):
     print "Starting analysis for time line plot..."
     date_dict = []
     msgs = iter(messages)
+    print len(messages)
     try:
         m = msgs.next()
         while True:
@@ -201,8 +209,8 @@ def word_histogram():
         histo_string += token + ':' + fd[token] + '\n'
         #print token, ':', fd[token]
 
-# timeline(fb['chats'][fb['chats'].keys()[0]]['messages'])
-# hour_histogram(fb['chats'][fb['chats'].keys()[0]]['messages'])
+timeline(fb['chats'][fb['chats'].keys()[0]]['messages'])
+#hour_histogram(fb['chats'][fb['chats'].keys()[0]]['messages'])
 
 find_links(fb['chats'][fb['chats'].keys()[0]]['messages'])
 
