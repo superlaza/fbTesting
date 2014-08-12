@@ -62,7 +62,7 @@ function validateForm(){
 //Establish socket connection immediately
 var socket = io('/data');//connect to custom namespace
 socket.on('connect', function(data) {
-    socket.emit('customSocket', { customId: "dataSocket" });//send custom ID
+    //TODOO: log if error
 });
 socket.on('bar', function (data) {
     //console.log(data);

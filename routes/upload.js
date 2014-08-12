@@ -1,3 +1,4 @@
+var fs = require('fs');
 module.exports = function(userData, nsp, sockets){
     var router = require('express').Router();
     var colors = require('colors');
@@ -9,21 +10,30 @@ module.exports = function(userData, nsp, sockets){
     var createFormParser = require('./modules/createForm.js');
 
     //the output locations for python results
-    var outputDirs = {
-        "timeline": "/data/wordcount.json",
-        "hour_histogram": "/data/hourhisto.json"
+    var datadict = {
+        "hour_histogram": {
+            key: 'hour_histogram',
+            event: 'radar',
+            log: 'sent hour histogram data to frontend....',
+            outputDir: "/data/wordcount.json"
+        },
+        "timeline": {
+            key: 'timeline',
+            event: 'bar',
+            log: 'sent timeline data to frontend....',
+            outputDir: "/data/hourhisto.json"
+        }
     };
 
     //post handling
     router.post('/', function(req, res){
         var id = req.sessionID.toString();
-
         //make directory for specific user issuing request
         createUserDir("./users/"+id);
 
         var pyOpts = {
             "sessionID": id,
-            "outputDirs": outputDirs,
+            "datadict": datadict,
             "nsp": nsp,
             "sockets": sockets,
             "userData": userData

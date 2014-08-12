@@ -1,0 +1,8 @@
+#Error Types
+* <font color='red'>Error</font>: A generic error that is not tied to a specific scenario. If you error is not better described by the errors below, you should throw a generic Error.
+* <font color='red'>TypeError</font>: A TypeError is thrown when a variable is not of the expected type. If you had a function to add two numbers, and a boolean gets passed in, you would want to throw a TypeError.
+* <font color='red'>RangeError</font>: These occur when a numeric value is invalid, such as trying to access an index in an array that doesn't exist. Also, if you wanted to limit a numeric value, like a year or age, you would throw a RangeError.
+* <font color='red'>SyntaxError</font>: A SyntaxError occurs when something is not coded properly. If you wanted to make sure a second function is fired after the first, you could throw a SyntaxError if that second function is not called.
+* <font color='red'>ReferenceError</font>: If there is a problem with a referenced variable, a ReferenceError is thrown. If your code expects an object to have a specific property but that property is not defined, you would throw a ReferenceError.
+* <font color='red'>EvalError</font>: If JavaScript has a problem parsing an eval() statement, it will throw an EvalError. If you are calling eval(), or consuming JSONP content (which functions similarly to eval()), you might want to throw a EvalError.
+* <font color='red'>URIError</font>: Occurs natively when encodeURI() and decodeURI() cannot parse their content. You could throw a URIError if there are problems with URLs and URIs.

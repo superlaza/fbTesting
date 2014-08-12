@@ -17,6 +17,7 @@ module.exports = function parse(opts){
         //need to specify file path at moment of file discovery
         //otherwise it will be ignored when the writestream is created
         file.path = "./users/"+opts.sessionID+'/uploads/'+file.name;
+        opts["filename"] = file.name;
     });
 
     //register this callback to progress event to display progress
@@ -26,13 +27,19 @@ module.exports = function parse(opts){
     });
 
     form.on('end', function(){
-        console.log("");
-        runPython(opts);
+        console.log("");//create gap in console
+        try {
+            runPython(opts);
+        }
+        catch(err){
+            //catch errors
+        }
     });
 
     form.on('error', function(err){
         console.log("File upload error: "+err);
         res.send("File upload error: "+err, 500);
+        throw err;
     });
 
 

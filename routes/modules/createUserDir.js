@@ -1,5 +1,6 @@
 var fs = require('fs');
 
+//TODOO: syncrhonocity holds up ENTIRE server
 //@param {string} userPath the directory where particular user data is stored
 module.exports = function createUserDir(userPath){
     //synchronous because this must happen before anything that follows

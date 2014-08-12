@@ -5,98 +5,116 @@ from json import loads
 from datetime import datetime
 import sys
 
+#for link parsing
+import re
+from urlparse import urlparse
+from collections import OrderedDict
+
 import argparse
 
-parser = argparse.ArgumentParser()
-parser.add_argument("filepath")
-parser.add_argument("outputDirs")
-args = parser.parse_args()
+userParams = {}
+filepath = ""
 
-filepath = args.filepath
-outputDirs = loads(args.outputDirs)
-if not (filepath.endswith('.html') or filepath.endswith('.htm')):
-    sys.stdout.write("Error: incorrect file type. Received "+args.filepath.split('.')[-1]+', need .htm or html')
-    sys.stdout.flush()
-    exit(1)
 
-#global vars
-#===========
+def extract():
+    months = {'January': 1,
+        'February': 2,
+        'March': 3,
+        'April': 4,
+        'May': 5,
+        'June': 6,
+        'July': 7,
+        'August': 8,
+        'September': 9,
+        'October': 10,
+        'November': 11,
+        'December': 12}
 
-months = {'January': 1,
-    'February': 2,
-    'March': 3,
-    'April': 4,
-    'May': 5,
-    'June': 6,
-    'July': 7,
-    'August': 8,
-    'September': 9,
-    'October': 10,
-    'November': 11,
-    'December': 12}
+    selector = pq(filename=filepath)
+    #selector = pq(filename = "messages.htm")#for debugging
 
-selector = pq(filename=filepath)
-#selector = pq(filename = "messages.htm")#for debugging
+    fb = {'user': userParams['user'], 'chats': {}}
 
-fb = {'user': 'David', 'chats': {}}
+    #make the following a function, localize these vars
+    fb_size = len(selector('.thread'))
+    fb_count = 0
 
-#make the following a function, localize these vars
-fb_size = len(selector('.thread'))
-fb_count = 0
-for thread in selector('.thread').items():
+    for thread in selector('.thread').items():
 
-    tempChat = {'messages': []}
-    userIDs = set()
-    
-    for msg in thread('.message').items():
-        user = msg('.user').html()
-        date = msg('.meta').html()
-        text = msg.next().html()
+        tempChat = {'messages': []}
+        userIDs = set()
 
-        if text is None:
-            continue
+        for msg in thread('.message').items():
+            user = msg('.user').html()
+            date = msg('.meta').html()
+            text = msg.next().html()
 
-        userIDs.add(user)
+            if text is None:
+                continue
 
-        temp_msg = {'user': user}
+            userIDs.add(user)
 
-        #TODO issue #4
-        #parse date and make datetime object
-        #ex: Thursday, January 16, 2014 at 9:15pm EST
-        dateSplit = date.split(' ')
-        year = int(dateSplit[3])
-        day = int(dateSplit[2][:-1])
-        month = int(months[dateSplit[1]])
+            temp_msg = {'user': user}
 
-        time = dateSplit[5].split(":")
-        #facebook gives 1-24, need 0-23
-        hour = int(time[0])-1
-        minute = int(time[1][:-2])
-        meridian = time[1][-2:]
+            #TODO issue #4
+            #parse date and make datetime object
+            #ex: Thursday, January 16, 2014 at 9:15pm EST
+            dateSplit = date.split(' ')
+            year = int(dateSplit[3])
+            day = int(dateSplit[2][:-1])
+            month = int(months[dateSplit[1]])
 
-        tz = dateSplit[6]
+            time = dateSplit[5].split(":")
+            #facebook gives 1-24, need 0-23
+            hour = int(time[0])-1
+            minute = int(time[1][:-2])
+            meridian = time[1][-2:]
 
-        if meridian == 'pm':
-            hour += 12
-        
-        temp_msg['date'] = str(datetime(year, month, day, hour, minute))
+            tz = dateSplit[6]
 
-        temp_msg['text'] = text
+            if meridian == 'pm':
+                hour += 12
 
-        tempChat['messages'].append(temp_msg)
+            temp_msg['date'] = str(datetime(year, month, day, hour, minute))
 
-    fb['chats'][str(list(userIDs))] = tempChat
+            temp_msg['text'] = text
 
-    fb_count += 1
-    sys.stdout.write("-extracing data from html...%d%%   \r" % (100*fb_count/fb_size))
+            tempChat['messages'].append(temp_msg)
+
+        fb['chats'][str(list(userIDs))] = tempChat
+
+        fb_count += 1
+        sys.stdout.write("-extracing data from html...%d%%   \r" % (100*fb_count/fb_size))
+        sys.stdout.flush()
+
+    #store this structure for later access
+    with open("./users/"+userParams['user']+'/messages.json', 'w') as fl:
+        dump(fb, fl)
+
+    sys.stdout.write("finished creating JSON chat structure\n")
     sys.stdout.flush()
 
-#store this structure for later access    
-with open("./users/"+outputDirs['user']+'/messages.json', 'w') as fl:
-    dump(fb, fl)
+    return fb
 
-sys.stdout.write("finished creating JSON chat structure")
-sys.stdout.flush()
+
+def find_links(messages):
+    link_dict = {}
+    link_dict_ordered = OrderedDict({})
+    test = {}
+    for m in messages:
+        links = re.findall('http[s]?://(?:[a-zA-Z]|[0-9]|[$-_@.&+]|[!*\(\),]|(?:%[0-9a-fA-F][0-9a-fA-F]))+', m['text'])
+        if links:
+            for link in links:
+                host = urlparse(link).hostname
+                if host in link_dict:
+                    link_dict[host].append(link)
+                else:
+                    link_dict[host] = [link]
+    for key in sorted(link_dict):
+        link_dict_ordered[key] = link_dict[key]
+
+    with open('links.json', 'w') as f:
+        dump(link_dict_ordered, f)
 
 
 def wordcount(messages):
@@ -156,7 +174,7 @@ def timeline(messages):
         sys.stdout.write("All messages have been analyzed.")
         sys.stdout.flush()
 
-    with open("./users/"+outputDirs['user']+outputDirs['dirs']['timeline'], 'w+') as f:
+    with open("./users/"+userParams['user']+userParams['dirs']['timeline'], 'w+') as f:
         dump(date_dict, fp=f)
 
     sys.stdout.write("timeline")
@@ -188,7 +206,7 @@ def hour_histogram(messages):
         else:
             hour_arr.append({"axis": (_hour+1), "value": 0})
 
-    with open("./users/"+outputDirs['user']+outputDirs['dirs']['hour_histogram'], 'w+') as f:
+    with open("./users/"+userParams['user']+userParams['dirs']['hour_histogram'], 'w+') as f:
         dump(hour_arr, fp=f)
 
     sys.stdout.write("hour_histogram")
@@ -216,7 +234,43 @@ def word_histogram():
         histo_string += token + ':' + fd[token] + '\n'
         #print token, ':', fd[token]
 
-timeline(fb['chats'][fb['chats'].keys()[19]]['messages'])
-hour_histogram(fb['chats'][fb['chats'].keys()[19]]['messages'])
 
-exit(0)
+def main(*args):
+    parser = argparse.ArgumentParser()
+    parser.add_argument("filepath")
+    parser.add_argument("userParams")
+    args = parser.parse_args(args)
+
+    global userParams, filepath
+    filepath = args.filepath
+    userParams = loads(args.userParams)
+
+    if not (filepath.endswith('.html') or filepath.endswith('.htm')):
+        sys.stdout.write("Error: incorrect file type. Received "+args.filepath.split('.')[-1]+', need .htm or html')
+        sys.stdout.flush()
+        exit(1)
+
+    fb = extract()
+    timeline(fb['chats'][fb['chats'].keys()[19]]['messages'])
+    hour_histogram(fb['chats'][fb['chats'].keys()[19]]['messages'])
+
+    exit(0)
+
+#if invoked from command line, run normally
+if __name__ == "__main__":
+    try:
+        print 'yes'
+        main(*sys.argv[1:])
+    except IOError as e:
+        print "I/O error({0}): {1}".format(e.errno, e.strerror)
+#otherwise, setup debug structure (in case of import, for example)
+else:
+    userParams = \
+        {
+            "user": "0000",
+            "dirs": {
+                "hour_histogram": "/data/hour_histogram.json",
+                "timeline": "/data/timeline.json"
+            }
+        }
+    filepath = "C:\\Projects\\fbTesting\\python\\debug\\messages.htm"
