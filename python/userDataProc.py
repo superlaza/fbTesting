@@ -250,8 +250,9 @@ def main(*args):
         exit(1)
 
     fb = extract()
-    timeline(fb['chats'][fb['chats'].keys()[19]]['messages'])
-    hour_histogram(fb['chats'][fb['chats'].keys()[19]]['messages'])
+    user = 0
+    timeline(fb['chats'][fb['chats'].keys()[user]]['messages'])
+    hour_histogram(fb['chats'][fb['chats'].keys()[user]]['messages'])
 
     exit(0)
 

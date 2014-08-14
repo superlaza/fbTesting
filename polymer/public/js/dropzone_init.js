@@ -1,5 +1,6 @@
 //<editor-fold desc="DROPZONE.JS">
 //name of options attribute is the camelized version of the form element ID
+//depends on fancybox
 $(function(){//on DOM ready
     Dropzone.options.uploadId ={
         paramName: "file",
@@ -11,7 +12,7 @@ $(function(){//on DOM ready
             this.on('dragleave', function(evt){
                 $('#uploadId').removeClass('animated pulse');
             });
-            this.on('addedfile', function(evt){
+            this.on('addedfile', function(file){
                 //console.log($('#testing').change(validateForm()));//client-side form validation
                 $('#tabs').show();
                 var uploadBox = $('#uploadId');
@@ -26,6 +27,10 @@ $(function(){//on DOM ready
                             "display": "block",
                             "margin-left": String((uploadImg.parent().width()-uploadImg.width())/2) +"px"
                         });
+                        setTimeout(function() {
+                            $.fancybox.close();
+                            $("#frag-1").css('visibility', 'visible');
+                        }, 2000);
                     }, 1000);
                 }, 500);
             });
