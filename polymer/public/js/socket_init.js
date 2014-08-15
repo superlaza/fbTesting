@@ -7,7 +7,6 @@ socket.on('bar', function (data) {
     //console.log(data);
     //TODOO: Modularize this code
     var tabs2 = document.getElementById('tabs2');
-    console.log(tabs2);
     var ul = tabs2.childNodes[1];
     var temp = document.createElement('div');
     temp.id = "fragment-1";
