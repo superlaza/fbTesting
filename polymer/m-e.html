@@ -12,31 +12,49 @@
                 border-color: #000000;
                 background-color: #ffffff;
 
+                /*box shadow*/
+                -webkit-box-shadow: 4px 4px 19px -1px rgba(0,0,0,0.75);
+                -moz-box-shadow: 4px 4px 19px -1px rgba(0,0,0,0.75);
+                box-shadow: 4px 4px 19px -1px rgba(0,0,0,0.75);
+
+                /*border radius*/
+                border-radius: 10px 10px 10px 10px;
+                -moz-border-radius: 10px 10px 10px 10px;
+                -webkit-border-radius: 10px 10px 10px 10px;
+                border: 0px solid #000000;
             }
             ::content #messageText{
                 color: black;
                 margin: 0;
+                display: inline-block;
 
             }
             ::content #date{
                 color: red;
-
+                text-align: right;
             }
             ::content #userName{
-                background-color: blue;
+                display: inline-block;
 
+                /*transform: rotate(270deg);*/
+                /*transform-origin: center 0 0;*/
 
 
             }
+            #rotate {
+                display: inline-block;
+                width: 20px;
+                height: 20px;
+            }
             #cont {
-                border: 2px solid;
-                border-color: #000000;
                 margin-bottom: 10px;
             }
         </style>
         <content select="div" id="date"></content>
         <div id="cont" layout hourizontal center>
-            <content select="div" id="userName"></content>
+            <div id="rotate">
+                <content select="div" id="userName"></content>
+            </div>
             <content select="div" id="messageText"></content>
         </div>
     </template>

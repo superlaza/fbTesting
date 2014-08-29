@@ -1,24 +1,16 @@
 <link rel="import" href="./components/polymer/polymer.html">
 
-<polymer-element name="mes-sage">
+<polymer-element name="m-e">
     <template>
         <style>
             :host {
                 display: block;
+                position: relative;
                 width: 40%;
                 margin: 1px;
                 border: 2px solid;
                 border-color: #000000;
                 background-color: #ffffff;
-
-            }
-            ::content #messageText{
-                color: black;
-                width:70%;
-                height:150px;
-                margin-left: auto;
-                margin-right: auto;
-                /*float: right;*/
 
                 /*box shadow*/
                 -webkit-box-shadow: 4px 4px 19px -1px rgba(0,0,0,0.75);
@@ -31,34 +23,41 @@
                 -webkit-border-radius: 10px 10px 10px 10px;
                 border: 0px solid #000000;
             }
+            ::content #messageText{
+                color: black;
+                margin: 0;
+                display: inline-block;
+
+            }
             ::content #date{
                 color: red;
-
+                text-align: right;
             }
             ::content #userName{
-                background-color: blue;
-                width: 10%;
-                /*height: 100%;*/
-                margin: auto 0 auto 0;
-
-                -webkit-border-radius: 30px;
-                /*float: left;*/
+                display: inline-block;
+                margin-right: 10px;
 
                 /*transform: rotate(270deg);*/
-                /*transform-origin: left bottom 0;*/
+                /*transform-origin: center 0 0;*/
+
+
+            }
+            #rotate {
+                display: inline-block;
+                width: 20px;
+                height: 20px;
             }
             #cont {
-                display: inline-block;
-                border: 2px solid;
-                border-color: #000000;
+                margin-bottom: 10px;
             }
         </style>
-            <content select="div" id="date"></content>
-            <div id="cont" layout hourizontal center>
-
+        <content select="div" id="date"></content>
+        <div id="cont" layout hourizontal center>
+            <div id="rotate">
                 <content select="div" id="userName"></content>
-                <content select="div" id="messageText"></content>
             </div>
+            <content select="div" id="messageText"></content>
+        </div>
     </template>
 
     <script>

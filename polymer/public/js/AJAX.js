@@ -47,14 +47,36 @@ function getLinks(button_text) {//when button is clicked, load chat search and l
             var search_box = $('#chat_search_input');
             search_box.css('visibility', 'visible');
             search_box.bind('keypress', function (e) {
-                console.log('key');
                 var code = e.keyCode || e.which;
                 if (code == 13) { //Enter keycode
                     document.getElementById("chat_search").innerHTML = "";
                     for (var msg in messages) {
                         if (messages[msg]['text'].indexOf(search_box.val()) != -1) {
 
-                            document.getElementById("chat_search").innerHTML += messages[msg]['text']+"<br>";
+                            //document.getElementById("chat_search").innerHTML += messages[msg]['text']+"<br>";
+
+//                            var poly = document.createElement("<mes-sage></mes-sage>");
+//
+//
+//                            var user = document.createElement("div");
+//                            var date = document.createElement("div");
+//                            var message = document.createElement("div");
+//
+//                            user.innerHTML = messages[msg]['user'];
+//                            user.id = "userName";
+//                            message.innerHTML = messages[msg]['text'];
+//                            message.id = "messageText";
+//                            date.innerHTML = messages[msg]['date'];
+//                            date.id = "date";
+//
+//                            poly.appendChild(user);
+//                            poly.appendChild(message);
+//                            poly.appendChild(date);
+                            document.getElementById("chat_search").innerHTML += '<mes-sage>'+
+                                '<div id="userName">'+messages[msg]['user']+'</div>'+
+                                '<div id="date">'+messages[msg]['date']+'</div>'+
+                                '<div id="messageText">'+messages[msg]['text']+'</div>'+
+                                '</mes-sage>';
                         }
                     }
                 }
