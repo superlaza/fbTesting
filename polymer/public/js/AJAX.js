@@ -53,6 +53,7 @@ function getLinks(button_text) {//when button is clicked, load chat search and l
                     document.getElementById("chat_search").innerHTML = "";
                     for (var msg in messages) {
                         if (messages[msg]['text'].indexOf(search_box.val()) != -1) {
+
                             document.getElementById("chat_search").innerHTML += messages[msg]['text']+"<br>";
                         }
                     }

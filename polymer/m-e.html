@@ -1,0 +1,47 @@
+<link rel="import" href="./components/polymer/polymer.html">
+
+<polymer-element name="m-e">
+    <template>
+        <style>
+            :host {
+                display: block;
+                position: relative;
+                width: 40%;
+                margin: 1px;
+                border: 2px solid;
+                border-color: #000000;
+                background-color: #ffffff;
+
+            }
+            ::content #messageText{
+                color: black;
+                margin: 0;
+
+            }
+            ::content #date{
+                color: red;
+
+            }
+            ::content #userName{
+                background-color: blue;
+
+
+
+            }
+            #cont {
+                border: 2px solid;
+                border-color: #000000;
+                margin-bottom: 10px;
+            }
+        </style>
+        <content select="div" id="date"></content>
+        <div id="cont" layout hourizontal center>
+            <content select="div" id="userName"></content>
+            <content select="div" id="messageText"></content>
+        </div>
+    </template>
+
+    <script>
+        Polymer({});
+    </script>
+</polymer-element>

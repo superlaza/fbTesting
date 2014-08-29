@@ -19,6 +19,7 @@
     <!-- custom elements -->
     <!--<link rel="import" href="post-list.html">-->
     <!--<link rel="import" href="chart.html">-->
+    <link rel="import" href=".\m-e.html">
     <!--====================================-->
 
     <!--vendor scripts-->
@@ -126,6 +127,34 @@
             <a id="inline" href="#uploadCont">Upload</a>
         </core-toolbar>
 
+        <div id="chat_search">
+
+            <mes-sage>
+                <div id="date">January 1, 2000</div>
+                <div id="userName">David Perlaza</div>
+                <div id="messageText">poop smoothie</div>
+            </mes-sage>
+
+        </div>
+
+        <div style="border: 2px solid; width: 35%">
+            <div>December 2</div>
+            <div>
+                <div>David Perlaza</div>
+                <div>poopie poopie</div>
+            </div>
+        </div>
+
+        <div id="chat_search">
+
+            <m-e>
+                <div id="date">January 1, 2000</div>
+                <div id="userName">David Perlaza</div>
+                <div id="messageText">poop smoothie</div>
+            </m-e>
+
+        </div>
+
         <div id="tabs">
             <ul>
                 <li>
@@ -148,7 +177,16 @@
                     <div id="chat_search_cont" style="float:left;width:50%">
                         <h>Search your texts</h><br>
                         <input id="chat_search_input" type="text" size="40" style="visibility: hidden;">
-                        <div id="chat_search"></div>
+                        <div id="chat_search">
+
+                            <mes-sage>
+                                <div class="date">test1</div>
+                                <div> t2 </div>
+                                <div>t3</div>
+                                <span>testing</span>
+                            </mes-sage>
+
+                        </div>
                     </div>
                     <div id="link_list" style="float:right;width:45%"><h>Links</h></div>
                 </div>
