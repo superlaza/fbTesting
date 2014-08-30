@@ -50,33 +50,69 @@ function getLinks(button_text) {//when button is clicked, load chat search and l
                 var code = e.keyCode || e.which;
                 if (code == 13) { //Enter keycode
                     document.getElementById("chat_search").innerHTML = "";
+
+
+
                     for (var msg in messages) {
                         if (messages[msg]['text'].indexOf(search_box.val()) != -1) {
 
                             //document.getElementById("chat_search").innerHTML += messages[msg]['text']+"<br>";
 
-//                            var poly = document.createElement("<mes-sage></mes-sage>");
-//
-//
-//                            var user = document.createElement("div");
-//                            var date = document.createElement("div");
-//                            var message = document.createElement("div");
-//
-//                            user.innerHTML = messages[msg]['user'];
-//                            user.id = "userName";
-//                            message.innerHTML = messages[msg]['text'];
-//                            message.id = "messageText";
-//                            date.innerHTML = messages[msg]['date'];
-//                            date.id = "date";
-//
-//                            poly.appendChild(user);
-//                            poly.appendChild(message);
-//                            poly.appendChild(date);
-                            document.getElementById("chat_search").innerHTML += '<mes-sage>'+
-                                '<div id="userName">'+messages[msg]['user']+'</div>'+
-                                '<div id="date">'+messages[msg]['date']+'</div>'+
-                                '<div id="messageText">'+messages[msg]['text']+'</div>'+
-                                '</mes-sage>';
+                            //actual message that matched the search
+                            //======================================
+                            var messageCont = document.createElement("div");
+                            messageCont.id = "messageCont";
+
+                            var poly = document.createElement("mes-sage");
+
+                            var user = document.createElement("div");
+                            var date = document.createElement("div");
+                            var message = document.createElement("div");
+
+                            user.innerHTML = messages[msg]['user'];
+                            user.id = "userName";
+                            message.innerHTML = messages[msg]['text'];
+                            message.id = "messageText";
+                            date.innerHTML = messages[msg]['date'];
+                            date.id = "date";
+
+                            poly.appendChild(date);
+                            poly.appendChild(user);
+                            poly.appendChild(message);
+
+                            messageCont.appendChild(poly);
+
+                            //context of the above message
+                            //============================
+                            var context = document.createElement("div");
+                            context.id = "context";
+
+                            for(var i = -2; i<3; ++i) {
+                                if(messages[parseInt(msg)+i]) {
+                                    poly = document.createElement("mes-sage");
+
+                                    user = document.createElement("div");
+                                    date = document.createElement("div");
+                                    message = document.createElement("div");
+
+                                    user.innerHTML = messages[parseInt(msg)+i]['user'];
+                                    user.id = "userName";
+                                    message.innerHTML = messages[parseInt(msg)+i]['text'];
+                                    message.id = "messageText";
+                                    date.innerHTML = messages[parseInt(msg)+i]['date'];
+                                    date.id = "date";
+
+                                    poly.appendChild(date);
+                                    poly.appendChild(user);
+                                    poly.appendChild(message);
+
+                                    context.appendChild(poly);
+                                }
+                            }
+
+                            messageCont.appendChild(context);
+
+                            document.getElementById("chat_search").appendChild(messageCont);
                         }
                     }
                 }
