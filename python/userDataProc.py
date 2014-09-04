@@ -84,7 +84,7 @@ def extract():
         fb['chats'][str(list(userIDs))] = tempChat
 
         fb_count += 1
-        sys.stdout.write("-extracing data from html...%d%%   \r" % (100*fb_count/fb_size))
+        sys.stdout.write("%d\r" % (100*fb_count/fb_size))
         sys.stdout.flush()
 
     #store this structure for later access
@@ -100,7 +100,6 @@ def extract():
 def find_links(messages):
     link_dict = {}
     link_dict_ordered = OrderedDict({})
-    test = {}
     for m in messages:
         links = re.findall('http[s]?://(?:[a-zA-Z]|[0-9]|[$-_@.&+]|[!*\(\),]|(?:%[0-9a-fA-F][0-9a-fA-F]))+', m['text'])
         if links:
@@ -119,11 +118,16 @@ def find_links(messages):
 
 def wordcount(messages):
     user_list = {}
+    user_texts = {}
     f = open('wordDump.txt', 'w')
     for m in messages:
+        if m['user'] not in user_texts.keys():
+            user_texts[m['user']] = m['text']+' '
+        else:
+            user_texts[m['user']] += m['text']+' '
         #add the raw string of the message to the wordDump for wordl
         try:
-            f.write(m['text']+'\n')
+            1+1  #f.write(m['text']+'\n')
         except UnicodeEncodeError:
             print 'unable to encode '+m['text']
             pass
@@ -141,6 +145,8 @@ def wordcount(messages):
         else:
             user_list[m['user']]['words'] += num_words
             user_list[m['user']]['messages'] += 1
+
+    dump(user_texts, fp=f)
     return user_list
 
 
@@ -215,25 +221,32 @@ def hour_histogram(messages):
 
 def word_histogram():
     #see wordHistogram
-    histo_string = ''
     f2 = open('wordDump.txt', 'rU')
-    txt = f2.read()
+    dict = open('C:/Projects/fbTesting/python/dict.txt').read()
+    user_texts = loads(f2.read())
     f2.close()
 
-    tokens = nltk.word_tokenize(txt) # tokenize text
-    clean_tokens = []
+    user_histo = {}
 
-    for word in tokens:
-        word = word.lower()
-        if word.isalpha(): # drop all non-words
-            clean_tokens.append(word)
+    for user in user_texts.keys():
+        tokens = nltk.word_tokenize(user_texts[user]) # tokenize text
+        clean_tokens = []
 
-    # make frequency distribution of words
-    fd = nltk.FreqDist(clean_tokens)
-    for token in fd:
-        histo_string += token + ':' + fd[token] + '\n'
-        #print token, ':', fd[token]
+        for word in tokens:
+            word = word.lower()
+            if word.isalpha(): # drop all non-words
+                clean_tokens.append(word)
 
+        # make frequency distribution of words
+        fd = nltk.FreqDist(clean_tokens)
+        actual_words = OrderedDict()
+        for word in fd.keys():
+            if word.lower() in dict:
+                actual_words[word] = fd[word]
+        user_histo[user] = {"vocab_size": len(actual_words), "histo": actual_words}
+
+    with open("./users/"+userParams['user']+'/data/word_histogram', 'w+') as f:
+        dump(user_histo, fp=f)
 
 def main(*args):
     parser = argparse.ArgumentParser()
@@ -251,8 +264,9 @@ def main(*args):
         exit(1)
 
     fb = extract()
-    timeline(fb['chats'][fb['chats'].keys()[19]]['messages'])
-    hour_histogram(fb['chats'][fb['chats'].keys()[19]]['messages'])
+    user = 0
+    timeline(fb['chats'][fb['chats'].keys()[user]]['messages'])
+    hour_histogram(fb['chats'][fb['chats'].keys()[user]]['messages'])
 
     exit(0)
 

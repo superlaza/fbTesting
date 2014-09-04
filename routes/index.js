@@ -20,6 +20,7 @@ module.exports = function(userData) {
     });
 //for live search, SHOULD ONLY SHOW AFTER WE ARE SURE WE HAVE
 //USER DATA
+//Since userData is passed in by reference, whenever the user's data is loaded this structure will be populated
     router.get('/livesearch.js', function (req, res) {
         var url_parts = url.parse(req.url, true);
         var query = url_parts.query;
@@ -31,6 +32,17 @@ module.exports = function(userData) {
             }
         }
         res.end(JSON.stringify(results));
+    });
+
+    router.get('/links.js', function (req, res) {
+        //TODOO: send the messages structure to frontend to put the computational burden on the browser, not the server
+        //the above would require rolling your own url parser (shouldn't be difficult at all, we only need host name really)
+        var url_parts = url.parse(req.url, true);
+        var query = url_parts.query;
+        var messages = userData[req.sessionID]['chats'][query.q]['messages'];
+
+
+        res.end(JSON.stringify(messages));
     });
 
 //any other request, find file and server

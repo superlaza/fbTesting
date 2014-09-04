@@ -1,3 +1,6 @@
+/**
+ * Created by Bird on 7/12/2014.
+ */
 module.exports = function(grunt) {
 
     // load all grunt tasks from the package.json that matches the `grunt-*` pattern

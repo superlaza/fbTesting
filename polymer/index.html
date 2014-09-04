@@ -1,0 +1,169 @@
+<!doctype html>
+<html>
+
+<head>
+  <title>fbTesting</title>
+    <!--POLYMER-->
+    <!--====================================-->
+    <meta name="viewport" content="width=device-width, minimum-scale=1.0, initial-scale=1.0, user-scalable=yes">
+    <script src="./components/platform/platform.js"></script><!--polymer js-->
+    <link rel="import" href="./components/font-roboto/roboto.html">
+    <!-- standard elements -->
+    <link rel="import"
+          href="./components/core-header-panel/core-header-panel.html">
+    <link rel="import"
+          href="./components/core-toolbar/core-toolbar.html">
+    <link rel="import"
+          href="./components/paper-tabs/paper-tabs.html">
+
+    <!-- custom elements -->
+    <!--<link rel="import" href="post-list.html">-->
+    <!--<link rel="import" href="chart.html">-->
+    <link rel="import" href=".\mes-sage.html">
+    <!--====================================-->
+
+    <!--vendor scripts-->
+    <!--====================================-->
+    <script type="application/javascript" src="public/js/vendor/jquery-1.11.1.js"></script>
+    <script type="application/javascript" src="./public/js/vendor/d3.js"></script>
+    <script type="application/javascript" src="../node_modules/socket.io/node_modules/socket.io-client/socket.io.js"></script>
+    <script type="application/javascript" src="public/js/vendor/dropzone.js"></script>
+    <script type="application/javascript" src="public/js/vendor/d3.js"></script>
+    <script type="application/javascript" src="public/js/vendor/RadarChart.js"></script>
+    <script type="application/javascript" src="public/js/vendor/jquery-ui-1.11.0/jquery-ui.min.js"></script>
+    <!--FANCYBOX-->
+    <script type="text/javascript" src="./fancybox/jquery.fancybox.pack.js"></script>
+    <!--====================================-->
+
+
+    <!--custom scripts-->
+    <script src="public/js/AJAX.js"></script>
+    <script src="public/js/form_validation.js"></script>
+    <!--<script src="public/js/socket_init.js"></script>--><!--TODOO: check order-->
+    <script src="public/js/dropzone_init.js"></script>
+    <script src="public/js/D3.js"></script>
+    <script src="public/js/jQuery_UI.js"></script>
+    <script src="public/js/socket_init.js"></script>
+    <!--FANCYBOX-->
+    <script>
+        $(document).ready(function() {
+            $("#inline").fancybox({
+                maxWidth	: 900,
+                maxHeight	: 150,
+                fitToView	: false,
+                width		: '90%',
+                height		: '90%',
+                autoSize	: false
+            });
+        });
+    </script>
+
+    <script>
+        (function(){
+            var init = true;
+            socket.on('progress', function (data) {//on progress event emission
+                $(function () {//wait till document is loaded
+                    if(init){
+                        $("#progressbar").css({'display': 'inline-block', 'height':'6px'});
+                        init = false;
+                    }
+                    $("#progressbar").progressbar({
+                        value: parseInt(data)
+                    });
+                    if(parseInt(data)>=99){
+                        $("#progressbar").css({'display': 'none'});
+                    }
+                });
+            });
+        })();
+    </script>
+
+
+    <!--vendor styles-->
+    <link rel="stylesheet" href="./public/css/animate.css">
+    <link rel="stylesheet" href="./public/css/dropzone.css">
+    <link rel="stylesheet" href="public/js/vendor/jquery-ui-1.11.0/jquery-ui.css">
+    <!--FANCYBOX-->
+    <link rel="stylesheet" href="./fancybox/jquery.fancybox.css" type="text/css" media="screen" />
+
+    <!--custom styles-->
+    <link rel="stylesheet" type="text/css" href="./public/css/main.css">
+
+  <style>
+  html,body {
+    height: 100%;
+    margin: 0;
+    background-color: #E5E5E5;
+    font-family: 'RobotoDraft', sans-serif;
+  }
+  core-header-panel {
+  height: 100%;
+  overflow: auto;
+  -webkit-overflow-scrolling: touch;
+  }
+  core-toolbar {
+    background: #03a9f4;
+    color: white;
+  }
+  </style>
+</head>
+
+<body unresolved touch-action="auto">
+    <div style="display:none"><!--displayed as light box only, so hidden until invoked-->
+        <div id="uploadCont">
+            <img id="uploadImg" class="upload" src="../public/img/fb_upload.png">
+            <!--TODOO: action is a temporary key to look for in node app-->
+            <form action="http://localhost:8000/upload"
+                  class="dropzone upload"
+                  id="uploadId">
+                <!--<div id="dropZoneText">Drop your shit here, please.</div>-->
+            </form>
+        </div>
+    </div>
+
+    <core-header-panel>
+
+        <core-toolbar>
+            <a id="inline" href="#uploadCont">Upload</a>
+        </core-toolbar>
+
+        <div id="tabs">
+            <ul>
+                <li>
+                    <a href="#frag-1">Utilities</a>
+                </li>
+                <li>
+                    <a href="#frag-2">Charts <div id="progressbar" style="display: none;height:6px;width:50px;"></div></a>
+                </li>
+            </ul>
+            <div id="frag-1" style="visibility: hidden;"><!--Only show after upload (this is done after drop event in dropzone_init.js)-->
+                <form>
+                    Search Conversations by Participants<br>
+                    <input type="text" size="30" onkeyup="showResult(this.value)">
+                    <div id="livesearch"></div>
+                </form>
+                <br>
+                <div style="background-color: black; height:20px"></div>
+                <br>
+                <div id="search_utilities">
+                    <div id="chat_search_cont" style="float:left;width:50%">
+                        <h>Search your texts</h><br>
+                        <input id="chat_search_input" type="text" size="40" style="visibility: hidden;">
+                        <div id="chat_search"></div>
+                    </div>
+                    <div id="link_list" style="float:right;width:45%"><h>Links</h></div>
+                </div>
+            </div>
+            <div id="frag-2">
+                <div id="tabs2">
+                    <ul>
+                    </ul>
+                </div>
+            </div><!--End 2nd Tab-->
+        </div><!--End tabs elements-->
+
+    </core-header-panel>
+
+</body>
+
+</html>

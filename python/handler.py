@@ -10,9 +10,17 @@ with open('./users/0000/messages.json') as jsonData:
 
 s = ''
 userList = {}
+
+for users in fb['chats'].keys():
+    try:
+        users.index("Cory O'Born")
+        break
+    except:
+       1+1
+
 while s != 'x':
     if s == '1':
-        userList = process.wordcount(fb['chats'][fb['chats'].keys()[19]]['messages'])
+        userList = process.wordcount(fb['chats'][users]['messages'])
         print 'Data:'
         for user in userList:
             print '| ' + user
@@ -21,10 +29,10 @@ while s != 'x':
         print ''
         s = ''
     elif s == '2':
-        process.timeline(fb['chats'][fb['chats'].keys()[19]]['messages'])
+        process.timeline(fb['chats'][users]['messages'])
         s = ''
     elif s == '3':
-        process.hour_histogram(fb['chats'][fb['chats'].keys()[19]]['messages'])
+        process.hour_histogram(fb['chats'][users]['messages'])
         s = ''
     elif s == '4':
         process.word_histogram()

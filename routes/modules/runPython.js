@@ -24,7 +24,12 @@ module.exports = function runPython(opts){
     //register event listeners
     pythonChild.stdout.on('data', function (data) {
         if(typeof data != 'undefined') {
-            if (data.toString()[0] == "-") {//this means we're receiving progress data
+            var progress  = data.toString().trim().match(/^[0-9][0-9]?$/);
+            if (progress) {//this means we're receiving progress data from the extraction
+                opts.nsp.connected[opts.sockets[opts.sessionID]].emit('progress', progress[0]);
+                process.stdout.write("extracting facebook data...." + progress[0] + "\033[0G");//strings comes with a carriage return
+            }
+            if (data.toString()[0] == "-") {//this means we're receiving progress data from other functions
                 process.stdout.write(data.toString().split('\r')[0] + "\033[0G");//strings comes with a carriage return
             }
 

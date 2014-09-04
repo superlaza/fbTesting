@@ -2,7 +2,7 @@
  {
     user : Ben,
     chats : {
-        George3 : {//chat partner is key for entire thread
+        [Ben, George3] : {//all participants are used as key for this thread
             messages :
             [//array
                 {
